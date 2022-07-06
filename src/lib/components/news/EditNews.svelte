@@ -59,6 +59,7 @@
             
             if (cld_public_id !== itemBup.cld_public_id) {
                 updatedItem.cld_public_id = cld_public_id
+                f.deleteOneImg(`Actibenne_banners_${itemBup.cld_public_id}`)
             }
             if (title !== itemBup.title) {
                 updatedItem.title = title
@@ -125,9 +126,9 @@
         <p class="label">Bannière</p>
         {#if cld_public_id}
             <ImagUpload 
-            imageInstalled={cld_public_id} 
             {cld_public_id} 
             {croppingAspectRatio} 
+            imageInstalled={true}
             uploadPreset='Actibenne_banners' 
             dispatchTitle='renew-banner-id'
             on:renew-banner-id={renewBannerId}

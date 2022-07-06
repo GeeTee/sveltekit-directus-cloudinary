@@ -1,7 +1,6 @@
 <script>
     import {createEventDispatcher} from 'svelte'
     import {CLOUDINARY_NAME} from '$lib/helpers/Env'
-    import f from '$lib/helpers/scripts'
 
     const dispatch = createEventDispatcher();
 
@@ -9,7 +8,7 @@
     $: src = cld_public_id !== ''? `https://res.cloudinary.com/geeteeimages/image/upload/c_scale,w_500,q_auto,f_jpg/Actibenne/banners/${cld_public_id}` : false  
 
     export let buttonText = 'Changer'
-    export let imageInstalled = null;
+    export let imageInstalled = false;
     export let defaultSource = "local";
     export let uploadPreset = 'avatar';
     export let croppingAspectRatio = 1;
@@ -18,26 +17,11 @@
     export let croppingCoordinatesMode = 'custom';
     export let dispatchTitle = 'get-avatar-public-id';
 
-    $: imageToDelete = (imageInstalled !== null && typeof imageInstalled === 'string')? `Actibenne_banners_${imageInstalled}` : ''
-
-    $: deletePreviousImage = (imageInstalled !== null && typeof imageInstalled === 'string')? true : false
-
     let isLoading = false
 
     $: cropping = multiple ? false : true;
 
-    // $: imageToDelete = cld_public_id !== ''? `Actibenne_banners_${cld_public_id}` : ''
-
-    // $: console.log('widget : ', {imageToDelete})
-
     const handleUploadImage = () => {
-        console.log('handleUploadImage')
-        // if (imageInstalled !== '') {
-        //     imageToDelete = `Actibenne_banners_${imageInstalled}` 
-        //     deletePreviousImage = true
-        //     console.log('handleUploadImage 2', {imageInstalled}, {imageToDelete}, {deletePreviousImage})
-        // }
-        //TODO:
         isLoading = true
         const uploadImage = cloudinary.createUploadWidget({
             
@@ -115,7 +99,6 @@
             multiple,
             defaultSource,
             showAdvancedOptions,
-            // getTags: getMyTags,
                 }, (error, result) => {
                     if (!error && result && result.event === "success") {
                         console.log('CLD UPLOAD: ', result.info);
@@ -124,10 +107,6 @@
                             public_id: result.info.public_id, 
                             thumbnail_url: result.info.thumbnail_url
                             })
-                        if (deletePreviousImage) {
-                            console.log('CLD UPLOAD: ', {deletePreviousImage}, {imageToDelete})
-                            f.deleteOneImg(imageToDelete);
-                        }
                         isLoading = false;
                     } else if (result.event === 'close') {
                         isLoading = false;
