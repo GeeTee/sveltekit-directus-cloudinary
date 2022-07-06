@@ -8,18 +8,18 @@
     $: src = cld_public_id !== ''? `https://res.cloudinary.com/geeteeimages/image/upload/c_scale,w_500,q_auto,f_jpg/Actibenne/banners/${cld_public_id}` : false  
 
     export let buttonText = 'Changer'
-    export let imageInstalled = false;
-    export let defaultSource = "local";
-    export let uploadPreset = 'avatar';
-    export let croppingAspectRatio = 1;
-    export let multiple = false;
-    export let showAdvancedOptions = true;
-    export let croppingCoordinatesMode = 'custom';
-    export let dispatchTitle = 'get-avatar-public-id';
+    export let imageInstalled = false
+    export let defaultSource = "local"
+    export let uploadPreset = 'avatar'
+    export let croppingAspectRatio = 1
+    export let multiple = false
+    export let showAdvancedOptions = true
+    export let croppingCoordinatesMode = 'custom'
+    export let dispatchTitle = 'get-avatar-public-id'
 
     let isLoading = false
 
-    $: cropping = multiple ? false : true;
+    $: cropping = multiple ? false : true
 
     const handleUploadImage = () => {
         isLoading = true

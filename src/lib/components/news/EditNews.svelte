@@ -11,9 +11,6 @@
     import Button from "../../UI/Button.svelte";
     import ImagUpload from '$lib/partials/images/cld/ImageUploadCld.svelte'
 
-    // import BannerEdit from '$lib/partials/images/cld/BannerEditCld.svelte'
-    // import BannerUpload from '$lib/partials/images/cld/BannerUploadCld.svelte'
-
     export let itemToEdit = undefined
 
     const directus = getContext('directus')
@@ -21,7 +18,7 @@
 
     let id = ''
     let title = ''
-    let slug = ''
+    let slug = '' //TODO: => ?????? 
     let redaction = ''
     let cld_public_id = ''
     let itemBup = {}
