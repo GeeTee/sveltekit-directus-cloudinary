@@ -30,6 +30,15 @@ const underscoreToSlash = (str) => {
   return str.replace(/\_/g, '/');
 }
 
+const deleteOneEltFromArray = (arr, value) => { 
+    const newArr = arr.filter(function(ele){ 
+            return ele != value; 
+        })
+    console.log('deleteOneEltFromArray', {newArr})
+    return newArr
+}
+    
+
 // cloudinary
 const bannerResizeW = (w, public_id) => {
     return `https://res.cloudinary.com/geeteeimages/image/upload/c_scale,dpr_1.0,q_auto,w_${w}/${public_id}`
@@ -58,6 +67,7 @@ const scriptsServices = {
     deleteOneImg,
     deleteAllImgsFromArray,
     slashToUnderscore,
-    underscoreToSlash
+    underscoreToSlash,
+    deleteOneEltFromArray
 }
 export default scriptsServices

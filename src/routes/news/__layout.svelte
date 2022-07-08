@@ -15,7 +15,6 @@
     export let items = []
     // console.log('news lay expected', {items})
     n.setNews(items)
-    setContext('cldPath', 'Actibenne/banners')
 </script>
 
 <div class="container">

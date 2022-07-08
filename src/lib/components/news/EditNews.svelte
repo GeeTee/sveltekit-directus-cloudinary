@@ -1,6 +1,6 @@
 <script>
     import n from '$lib/stores/newsStore'
-    import { getContext } from "svelte";
+    import { getContext, onDestroy } from "svelte";
     import { goto } from '$app/navigation'
 
     import slugify from 'slugify'
@@ -22,6 +22,7 @@
     let redaction = ''
     let cld_public_id = ''
     let itemBup = {}
+    let imgsKept = []
     // slugify 
     const options = {
         lower: true
@@ -56,7 +57,8 @@
             
             if (cld_public_id !== itemBup.cld_public_id) {
                 updatedItem.cld_public_id = cld_public_id
-                f.deleteOneImg(`Actibenne_banners_${itemBup.cld_public_id}`)
+                f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(cld_public_id))
+                f.deleteOneImg(f.slashToUnderscore(itemBup.cld_public_id))
             }
             if (title !== itemBup.title) {
                 updatedItem.title = title
@@ -75,10 +77,12 @@
         }
 
         if (!itemToEdit) {
-            console.log('createItem saveItem 1', {title}, {redaction})
+            console.log('createItem saveItem 1', {cld_public_id}, {title}, {redaction})
             const createdItem = {}
 
             createdItem.cld_public_id = cld_public_id
+            imgsKept = f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(cld_public_id))
+            console.log('saveItem', {imgsKept})
 
             createdItem.title = title
             createdItem.slug = slugify(title, options)
@@ -88,7 +92,7 @@
             n.addPost(createdItem)
             const res = await news.createOne(createdItem)
             console.log('createItem saveItem 3', res)
-            if (res.ok) {
+            if (res) {
                 goto(`/news/${createdItem.slug}?img=${cld_public_id}`)
             }            
         }
@@ -102,17 +106,28 @@
     const getNewBannerId = (e) => {
         const {public_id} = e.detail
         console.log('getNewBannerId', public_id)
-        const idArr = public_id.split('/')
-        cld_public_id = idArr[idArr.length - 1]
+        imgsKept.push(f.slashToUnderscore(public_id))
+        console.log('getNewBannerId', {imgsKept})
+        cld_public_id = public_id
         console.log('getNewBannerId', {cld_public_id})
     }
     const renewBannerId = (e) => {
         const {public_id} = e.detail
         console.log('renewBannerId', {public_id})
-        const idArr = public_id.split('/')
-        cld_public_id = idArr[idArr.length - 1]
+        imgsKept.push(f.slashToUnderscore(public_id))
+        console.log('renewBannerId', {imgsKept})
+        cld_public_id = public_id
         console.log('renewBannerId', {cld_public_id})
     }
+
+    onDestroy(
+        () => {
+            console.log('ONDESTROY', {imgsKept})
+            if (imgsKept.length > 0) {
+                f.deleteAllImgsFromArray(imgsKept)
+            }
+        }
+    )
 </script>
 <svelte:head>
 <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript">  

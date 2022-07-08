@@ -1,12 +1,12 @@
+import f from '$lib/helpers/scripts'
 
 
-const cldPath = 'Actibenne/banners/'
 const sizes = [200, 400, 600, 800, 1000, 1200, 1400, 1600]
 const l = sizes.length
 
 export const get = async ({url}) => {
-    const imgId = url.searchParams.get('img')
-    const public_id = cldPath + imgId
+    const imgSlug = url.searchParams.get('img')
+    const public_id = f.underscoreToSlash(imgSlug)
 
 
     const srcJpg = []
