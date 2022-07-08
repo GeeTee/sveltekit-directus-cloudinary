@@ -196,6 +196,9 @@
 
         </div>
     </form>
+    <div class="gallery-imgs">
+        <p class="label">Choisir les images de gallery</p>
+    </div>
 </div>
 
 <style>
