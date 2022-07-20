@@ -16,6 +16,7 @@ const getAllTest = async () => {
                         slug
                         redaction
                         cld_public_id
+                        gallery_photos
                     }
                 }
             `

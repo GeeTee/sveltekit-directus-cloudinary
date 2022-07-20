@@ -21,6 +21,7 @@
     let slug = '' //TODO: => ?????? 
     let redaction = ''
     let cld_public_id = ''
+    let gallery_photos = null
     let itemBup = {}
     let imgsKept = []
     // slugify 
@@ -45,6 +46,7 @@
         slug = itemToEdit.slug
         redaction = itemToEdit.redaction
         cld_public_id = itemToEdit.cld_public_id
+        gallery_photos = itemToEdit.gallery_photos
     }
 
     const saveItem = async (e) => {
@@ -67,6 +69,10 @@
             if (redaction !== itemBup.redaction) {
                 updatedItem.redaction = redaction
             }
+
+            //TODO: Manage gallery
+            updatedItem.gallery_photos = [{public_id: 'A'}, {public_id: 'B'}]
+
             console.log('itemToEdit saveItem 2', {updatedItem})
             n.updatePost(id, updatedItem)
             const res = await news.updateOne(id, updatedItem)
@@ -196,9 +202,22 @@
 
         </div>
     </form>
+    {#if gallery_photos?.length > 0}
     <div class="gallery-imgs">
-        <p class="label">Choisir les images de gallery</p>
+        <p class="label">Galerie images Présente</p>
+        <ul>
+        {#each gallery_photos as {public_id}}
+             <li>{public_id}</li>
+        {/each}
+        </ul>
     </div>
+    {/if}
+    {#if  gallery_photos === null}
+    <div class="gallery-imgs">
+        <p class="label">Créer une galerie images</p>
+    </div>
+    {/if}
+
 </div>
 
 <style>

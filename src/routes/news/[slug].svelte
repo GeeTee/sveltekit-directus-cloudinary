@@ -22,16 +22,17 @@
             <h2>{item?.title}</h2>
         </header>
         <div class="gt-banner">
-
             <Banner {srcJpg} {srcWebP} />
-
-            <!-- <img src="https://res.cloudinary.com/geeteeimages/image/upload/c_scale,w_1500,q_auto,f_webp/Actibenne/banners/assainissement-par-actibenne" alt="test"> -->
-
-            <!-- <img src={srcTest} alt="test"> -->
-
         </div> 
         <div class="content">
             {@html item?.redaction}
         </div>
+        {#if item?.gallery_photos !== null && item?.gallery_photos.length > 0}
+             <ul>
+                {#each item?.gallery_photos as {public_id}}
+                     <li>{public_id}</li>
+                {/each}
+             </ul>
+        {/if}
     </article>
 </section>
