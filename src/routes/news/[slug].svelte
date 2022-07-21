@@ -28,11 +28,11 @@
             {@html item?.redaction}
         </div>
         {#if item?.gallery_photos !== null && item?.gallery_photos.length > 0}
-             <ul>
+             <ol>
                 {#each item?.gallery_photos as {public_id}}
                      <li>{public_id}</li>
                 {/each}
-             </ul>
+             </ol>
         {/if}
     </article>
 </section>

@@ -10,6 +10,7 @@
     import TextInput from "../../UI/TextInput.svelte";
     import Button from "../../UI/Button.svelte";
     import ImagUpload from '$lib/partials/images/cld/ImageUploadCld.svelte'
+    import GallUpload from '$lib/partials/images/cld/GalleryImgsUploadCld.svelte'
 
     export let itemToEdit = undefined
 
@@ -21,7 +22,8 @@
     let slug = '' //TODO: => ?????? 
     let redaction = ''
     let cld_public_id = ''
-    let gallery_photos = null
+    let gallery_photos = []
+    let thumbGallery= []
     let itemBup = {}
     let imgsKept = []
     // slugify 
@@ -45,8 +47,12 @@
         title = itemToEdit.title
         slug = itemToEdit.slug
         redaction = itemToEdit.redaction
-        cld_public_id = itemToEdit.cld_public_id
-        gallery_photos = itemToEdit.gallery_photos
+        cld_public_id = itemToEdit.cld_public_id // BAnner
+        if (itemToEdit.gallery_photos !== null) {
+            gallery_photos = itemToEdit.gallery_photos
+            thumbGallery = itemToEdit.gallery_photos
+        }
+        
     }
 
     const saveItem = async (e) => {
@@ -71,7 +77,11 @@
             }
 
             //TODO: Manage gallery
-            updatedItem.gallery_photos = [{public_id: 'A'}, {public_id: 'B'}]
+            updatedItem.gallery_photos = gallery_photos
+            console.log('updatedItem.gallery_photos : ', updatedItem.gallery_photos)
+            updatedItem.gallery_photos.forEach(elt => {
+                imgsKept = f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(elt.public_id))
+            });
 
             console.log('itemToEdit saveItem 2', {updatedItem})
             n.updatePost(id, updatedItem)
@@ -108,7 +118,7 @@
         e.preventDefault()
         console.log('resetForm')
     }
-
+    // BANNER
     const getNewBannerId = (e) => {
         const {public_id} = e.detail
         console.log('getNewBannerId', public_id)
@@ -124,6 +134,33 @@
         console.log('renewBannerId', {imgsKept})
         cld_public_id = public_id
         console.log('renewBannerId', {cld_public_id})
+    }
+
+    // GALLERY IMGS
+    const getGalleryInfo = (e) => {
+        const cldArray = e.detail 
+        console.log('getGalleryInfo', cldArray)
+        cldArray.forEach(elt => {
+            const slug = f.slashToUnderscore(elt.uploadInfo.public_id)
+            // slug imgs ds imgsKept
+            imgsKept.push(slug)
+            // add to gallery_photos 
+            // if (gallery_photos === null) {
+            //     gallery_photos = []
+            // }
+            gallery_photos = [
+                ...gallery_photos,
+                {
+                    public_id: elt.uploadInfo.public_id,
+                    height: elt.uploadInfo.height,
+                    width: elt.uploadInfo.width
+                }
+            ]
+            thumbGallery = gallery_photos.map(obj => {
+                return obj.public_id
+            })
+        });
+        console.log('getGalleryInfo', {imgsKept}, {gallery_photos})
     }
 
     onDestroy(
@@ -202,22 +239,12 @@
 
         </div>
     </form>
-    {#if gallery_photos?.length > 0}
-    <div class="gallery-imgs">
-        <p class="label">Galerie images Présente</p>
-        <ul>
-        {#each gallery_photos as {public_id}}
-             <li>{public_id}</li>
-        {/each}
-        </ul>
-    </div>
-    {/if}
-    {#if  gallery_photos === null}
-    <div class="gallery-imgs">
-        <p class="label">Créer une galerie images</p>
-    </div>
-    {/if}
-
+    <GallUpload 
+    {thumbGallery}
+    showAdvancedOptions={false}
+    uploadPreset='Actibenne_posts_galleries'
+    on:get-gallery-info={getGalleryInfo}
+    />
 </div>
 
 <style>

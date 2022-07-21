@@ -44,6 +44,10 @@ const bannerResizeW = (w, public_id) => {
     return `https://res.cloudinary.com/geeteeimages/image/upload/c_scale,dpr_1.0,q_auto,w_${w}/${public_id}`
 }
 
+const thumbImg = (public_id) => {
+  return `https://res.cloudinary.com/geeteeimages/image/upload/c_limit,h_100,w_150/${public_id}`
+}
+
 const deleteOneImg = async (slug) => { 
   console.log('deleteOneImg', {slug})
   const response = await fetch(`/images/${slug}`, {
@@ -64,6 +68,7 @@ const scriptsServices = {
     condensifyPhone,
     checkAuthentif,
     bannerResizeW,
+    thumbImg,
     deleteOneImg,
     deleteAllImgsFromArray,
     slashToUnderscore,
