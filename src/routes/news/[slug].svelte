@@ -1,6 +1,7 @@
 <script>
  import n from '$lib/stores/newsStore'
  import {page} from '$app/stores'
+ import f from '$lib/helpers/scripts'
 
  import Banner from '$lib/partials/images/cld/BannerCld.svelte'
 
@@ -30,7 +31,7 @@
         {#if item?.gallery_photos !== null && item?.gallery_photos.length > 0}
              <ol>
                 {#each item?.gallery_photos as {public_id}}
-                     <li>{public_id}</li>
+                     <li><img src={f.thumbImg(public_id)} alt="//TODO:"></li>
                 {/each}
              </ol>
         {/if}

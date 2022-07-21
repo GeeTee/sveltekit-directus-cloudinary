@@ -50,7 +50,12 @@
         cld_public_id = itemToEdit.cld_public_id // BAnner
         if (itemToEdit.gallery_photos !== null) {
             gallery_photos = itemToEdit.gallery_photos
-            thumbGallery = itemToEdit.gallery_photos
+            thumbGallery = gallery_photos.map(img => {
+                return {
+                    slug: f.slashToUnderscore(img.public_id),
+                    public_id: img.public_id
+                }
+            })
         }
         
     }
@@ -65,7 +70,7 @@
             
             if (cld_public_id !== itemBup.cld_public_id) {
                 updatedItem.cld_public_id = cld_public_id
-                f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(cld_public_id))
+                imgsKept = f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(cld_public_id))
                 f.deleteOneImg(f.slashToUnderscore(itemBup.cld_public_id))
             }
             if (title !== itemBup.title) {
@@ -156,11 +161,22 @@
                     width: elt.uploadInfo.width
                 }
             ]
-            thumbGallery = gallery_photos.map(obj => {
-                return obj.public_id
-            })
+            thumbGallery = [
+                ...thumbGallery,
+                {
+                    slug,
+                    public_id: elt.uploadInfo.public_id,
+                }
+            ]
         });
         console.log('getGalleryInfo', {imgsKept}, {gallery_photos})
+    }
+    const deletingImgs = (e) => {
+        let {public_id, slug} = e.detail
+        console.log('EditNews deletingImgs', {public_id, slug})
+        imgsKept.push(slug)
+        thumbGallery = thumbGallery.filter(item => item.public_id !== public_id)
+        gallery_photos = gallery_photos.filter(item => item.public_id !== public_id)
     }
 
     onDestroy(
@@ -242,8 +258,9 @@
     <GallUpload 
     {thumbGallery}
     showAdvancedOptions={false}
-    uploadPreset='Actibenne_posts_galleries'
+    uploadPreset='Actibenne_postsGalleries'
     on:get-gallery-info={getGalleryInfo}
+    on:deleting-Imgs={deletingImgs}
     />
 </div>
 

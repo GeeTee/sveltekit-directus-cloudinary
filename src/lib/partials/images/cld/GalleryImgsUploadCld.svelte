@@ -2,6 +2,7 @@
     import {createEventDispatcher} from 'svelte'
     import {CLOUDINARY_NAME} from '$lib/helpers/Env'
     import f from '$lib/helpers/scripts'
+    import Button from '$lib/UI/Button.svelte'
 
     const dispatch = createEventDispatcher();
 
@@ -12,9 +13,11 @@
     export let uploadPreset = 'postGalleries';
     export let showAdvancedOptions = true;
     export let dispatchTitle = 'get-gallery-info';
-    export let buttonText = "Galerie";
+    // export let buttonText = "Galerie";
 
     export let thumbGallery = []
+
+    $: buttonText = thumbGallery.length > 0 ? 'Compléter votre galerie' : 'Ajouter vos photos'
 
     let isLoading = false
 
@@ -104,20 +107,46 @@
         );
     }
 
+    const deleteImg = (public_id, slug) => {
+        console.log('Gallery deleteImg', public_id)
+        // thumbGallery = thumbGallery.filter(item => item.public_id !== public_id)
+        dispatch('deleting-Imgs', {public_id, slug})
+    }
+
 </script>
-<h1>Gestion galerie imgs</h1>
+<p class="label">Gérer la gallerie images</p>
+{JSON.stringify(thumbGallery)}
 {#if thumbGallery.length > 0}
      <ol>
-        {#each thumbGallery as {public_id}}
-             <li><img src={f.thumbImg(public_id)} alt="t"></li>
+        {#each thumbGallery as {slug, public_id}}
+            <li>
+                <div>
+                    <img src={f.thumbImg(public_id)} alt="//TODO:">
+                </div>
+                <Button
+                id={slug}
+                is-danger
+                mt-2
+                enabled={true}
+                fct={() => deleteImg(public_id, slug)}
+                >
+                    Enlever
+                </Button>
+            </li>
         {/each}
      </ol>
+{/if}
+{#if thumbGallery.length <= 0}
+    <div class="notification is-primary">
+        <strong>Notification //TODO: vide</strong>
+    </div>   
+     
 {/if}
 <div>
     <button 
     class:is-loading={isLoading} 
     class:is-primary={thumbGallery.length === 0} 
-    class:is-warning={thumbGallery.length > 0}
+    class:is-info={thumbGallery.length > 0}
     class="button" 
     on:click={handleUploadImage}
     >
@@ -125,3 +154,19 @@
     <span>{buttonText}</span>
     </button>
 </div>
+
+<style lang="scss">
+    ol {
+        display: flex;
+        flex-flow: row wrap;
+        > li {
+            margin: 0.7rem;
+            display: flex;
+            flex-direction: column;
+            max-width: 150px;
+            > div {
+                text-align: center;
+            }
+        }
+    }
+</style>
