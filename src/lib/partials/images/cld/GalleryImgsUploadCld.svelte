@@ -113,6 +113,11 @@
         dispatch('deleting-Imgs', {public_id, slug})
     }
 
+    const emptyAllGallery = () => {
+        console.log('Gallery emptyAllGallery')
+        dispatch('empty-gallery')
+    }
+
 </script>
 <p class="label">Gérer la gallerie images</p>
 {JSON.stringify(thumbGallery)}
@@ -124,7 +129,6 @@
                     <img src={f.thumbImg(public_id)} alt="//TODO:">
                 </div>
                 <Button
-                id={slug}
                 is-danger
                 mt-2
                 enabled={true}
@@ -142,7 +146,7 @@
     </div>   
      
 {/if}
-<div>
+<div class="buttons">
     <button 
     class:is-loading={isLoading} 
     class:is-primary={thumbGallery.length === 0} 
@@ -153,6 +157,17 @@
     <span class="icon is-small"><i class="fas fa-camera-retro"></i></span>
     <span>{buttonText}</span>
     </button>
+
+    {#if thumbGallery.length > 0}
+        <button 
+        class="button is-danger" 
+        on:click={emptyAllGallery}
+        >
+        <span class="icon is-small"><i class="fas fa-camera-retro"></i></span>
+        <span>Enlever toutes les images</span>
+        </button>
+    {/if}
+
 </div>
 
 <style lang="scss">

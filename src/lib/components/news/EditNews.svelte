@@ -83,10 +83,14 @@
 
             //TODO: Manage gallery
             updatedItem.gallery_photos = gallery_photos
-            console.log('updatedItem.gallery_photos : ', updatedItem.gallery_photos)
-            updatedItem.gallery_photos.forEach(elt => {
-                imgsKept = f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(elt.public_id))
-            });
+            if (updatedItem.gallery_photos.length > 0) {
+                console.log('updatedItem.gallery_photos : ', updatedItem.gallery_photos)
+                updatedItem.gallery_photos.forEach(elt => {
+                    imgsKept = f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(elt.public_id))
+                });
+            }
+
+  
 
             console.log('itemToEdit saveItem 2', {updatedItem})
             n.updatePost(id, updatedItem)
@@ -178,6 +182,13 @@
         thumbGallery = thumbGallery.filter(item => item.public_id !== public_id)
         gallery_photos = gallery_photos.filter(item => item.public_id !== public_id)
     }
+    const emptyGallery = () => {
+        console.log('EditNews emptyGallery 1', {imgsKept})
+        imgsKept = thumbGallery.map(img => {return img.slug})
+        console.log('EditNews emptyGallery 2', {imgsKept})
+        thumbGallery = []
+        gallery_photos = []
+    }
 
     onDestroy(
         () => {
@@ -261,6 +272,7 @@
     uploadPreset='Actibenne_postsGalleries'
     on:get-gallery-info={getGalleryInfo}
     on:deleting-Imgs={deletingImgs}
+    on:empty-gallery={emptyGallery}
     />
 </div>
 
