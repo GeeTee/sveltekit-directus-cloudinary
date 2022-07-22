@@ -74,6 +74,7 @@
             if (cld_public_id !== itemBup.cld_public_id) {
                 updatedItem.cld_public_id = cld_public_id
                 imgsKept = f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(cld_public_id))
+                imgsToDelete = [...imgsKept]
                 f.deleteOneImg(f.slashToUnderscore(itemBup.cld_public_id))
             }
             if (title !== itemBup.title) {
@@ -126,6 +127,7 @@
             n.addPost(createdItem)
             const res = await news.createOne(createdItem)
             console.log('createItem saveItem 3', res)
+            haveSaved = true
             if (res) {
                 goto(`/news/${createdItem.slug}?img=${cld_public_id}`)
             }            
@@ -204,6 +206,7 @@
             if (!haveSaved) {
                 showWarningLeavingPage = true
                 console.log('ONDESTROY na pas sauvegardé', {showWarningLeavingPage})
+                imgsToDelete = [...imgsKept]
             }
             if (haveSaved) {
                 console.log('ONDESTROY a sauvegardé', {showWarningLeavingPage})
