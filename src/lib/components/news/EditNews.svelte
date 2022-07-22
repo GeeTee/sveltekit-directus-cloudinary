@@ -35,6 +35,9 @@
     // CONFIRMATION ACTION ENREGISTER //TODO:
     let haveSaved = false
     let showWarningLeavingPage = false
+    // -- activation des notifications pour enregistrer les changement d'imgs
+    let dnBanner = true
+    let dnGallery = true
 
     const titleValid = true
     const redactionValid = true
@@ -154,20 +157,19 @@
         console.log('renewBannerId', {imgsKept})
         cld_public_id = public_id
         console.log('renewBannerId', {cld_public_id})
+        dnBanner = false
     }
 
     // GALLERY IMGS
     const getGalleryInfo = (e) => {
         const cldArray = e.detail 
         console.log('getGalleryInfo', cldArray)
+        if (itemToEdit) {
+            dnGallery = false
+        }
         cldArray.forEach(elt => {
             const slug = f.slashToUnderscore(elt.uploadInfo.public_id)
-            // slug imgs ds imgsKept
             imgsKept.push(slug)
-            // add to gallery_photos 
-            // if (gallery_photos === null) {
-            //     gallery_photos = []
-            // }
             gallery_photos = [
                 ...gallery_photos,
                 {
@@ -192,6 +194,7 @@
         imgsKept.push(slug)
         thumbGallery = thumbGallery.filter(item => item.public_id !== public_id)
         gallery_photos = gallery_photos.filter(item => item.public_id !== public_id)
+        dnGallery = false
     }
     const emptyGallery = () => {
         console.log('EditNews emptyGallery 1', {imgsKept})
@@ -199,6 +202,7 @@
         console.log('EditNews emptyGallery 2', {imgsKept})
         thumbGallery = []
         gallery_photos = []
+        dnGallery = false
     }
 
     onDestroy(
@@ -232,6 +236,7 @@
             imageInstalled={true}
             uploadPreset='Actibenne_banners' 
             dispatchTitle='renew-banner-id'
+            dn={dnBanner}
             on:renew-banner-id={renewBannerId}
             />
         {:else}
@@ -269,6 +274,7 @@
     {thumbGallery}
     showAdvancedOptions={false}
     uploadPreset='Actibenne_postsGalleries'
+    dn={dnGallery}
     on:get-gallery-info={getGalleryInfo}
     on:deleting-Imgs={deletingImgs}
     on:empty-gallery={emptyGallery}

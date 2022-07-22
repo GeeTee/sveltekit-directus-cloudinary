@@ -3,6 +3,8 @@
     import {CLOUDINARY_NAME} from '$lib/helpers/Env'
     import f from '$lib/helpers/scripts'
 
+    import Notification from '../../../UI/elements/Notification.svelte'; 
+
     const dispatch = createEventDispatcher();
 
     export let cld_public_id = ''
@@ -18,6 +20,7 @@
     export let showAdvancedOptions = true
     export let croppingCoordinatesMode = 'custom'
     export let dispatchTitle = 'get-avatar-public-id'
+    export let dn = true
 
     let isLoading = false
 
@@ -120,13 +123,13 @@
 </script>
 
 {#if src}
-    <div class="edit-banner mb-6">
+    <div class="edit-banner block">
         <img {src} alt="">
     </div>
 {:else}
         <strong>Pas d'image choisie</strong>
 {/if}
-<div>
+<div class="block">
     <button 
     class:is-loading={isLoading} 
     class:is-primary={!imageInstalled} 
@@ -138,3 +141,9 @@
     <span>{buttonText}</span>
     </button>
 </div>
+<Notification
+{dn}
+is-warning
+text='Pensez à enregistrer le changement de bannière. <br />Bouton vert Enregistrer en bas'
+/>
+

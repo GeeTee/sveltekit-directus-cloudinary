@@ -4,17 +4,15 @@
     import f from '$lib/helpers/scripts'
     import Button from '$lib/UI/Button.svelte'
     import Confirmation from '$lib/UI/ConfirmationAction.svelte'
+    import Notification from '../../../UI/elements/Notification.svelte';
 
     const dispatch = createEventDispatcher();
 
-    // export let tagOwner = null; // le slug utilisateur
-    // export let tagElt = null; // le slug elt ex post
-    // export let tagBase = null; // le types ex : postGallery
     export let defaultSource = "local";
     export let uploadPreset = 'postGalleries';
     export let showAdvancedOptions = true;
     export let dispatchTitle = 'get-gallery-info';
-    // export let buttonText = "Galerie";
+    export let dn = true
 
     export let thumbGallery = []
 
@@ -178,6 +176,11 @@
     {/if}
 
 </div>
+<Notification
+{dn}
+is-warning
+text='Pensez à enregistrer les changements de votre galerie. <br />Bouton vert Enregistrer en bas'
+/>
 <Confirmation
 {openModal}
 title='Enlever toutes les images de la galerie'

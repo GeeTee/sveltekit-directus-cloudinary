@@ -1,6 +1,7 @@
 <script>
     export let heading = null
     export let text = 'Pas d\'élément disponible'
+    export let dn = false
 
     // CLASSES CSS
     let classBase = ['notification']
@@ -17,4 +18,10 @@
 {#if heading}
      <h3 class="subtitle is-uppercase is-size-7 mb-2">{heading}</h3>
 {/if}
-<div class={classL}>{text}</div>
+<div class={classL} class:dn >{@html text}</div>
+
+<style>
+    .dn {
+        display: none;
+    }
+</style>
