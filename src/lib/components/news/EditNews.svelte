@@ -119,6 +119,9 @@
             createdItem.slug = slugify(title, options)
 
             createdItem.redaction = redaction
+
+            createdItem.gallery_photos = gallery_photos
+
             console.log('createItem saveItem 2', {createdItem})
             n.addPost(createdItem)
             const res = await news.createOne(createdItem)
