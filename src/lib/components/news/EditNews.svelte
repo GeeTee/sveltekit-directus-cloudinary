@@ -26,10 +26,15 @@
     let thumbGallery= []
     let itemBup = {}
     let imgsKept = []
+    let imgsToDelete = []
     // slugify 
     const options = {
         lower: true
     }
+
+    // CONFIRMATION ACTION ENREGISTER //TODO:
+    let haveSaved = false
+    let showWarningLeavingPage = false
 
     const titleValid = true
     const redactionValid = true
@@ -60,9 +65,7 @@
         
     }
 
-    const saveItem = async (e) => {
-        e.preventDefault()
-        
+    const saveItem = async () => {
         if (itemToEdit) {
             console.log('itemToEdit saveItem 1', {title}, {redaction})
             const updatedItem = {}
@@ -87,15 +90,18 @@
                 console.log('updatedItem.gallery_photos : ', updatedItem.gallery_photos)
                 updatedItem.gallery_photos.forEach(elt => {
                     imgsKept = f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(elt.public_id))
+                    imgsToDelete = [...imgsKept]
                 });
             }
-
-  
+            if (updatedItem.gallery_photos.length === 0 && imgsKept.length > 0) {
+                imgsToDelete = [...imgsKept]
+            }
 
             console.log('itemToEdit saveItem 2', {updatedItem})
             n.updatePost(id, updatedItem)
             const res = await news.updateOne(id, updatedItem)
             console.log('itemToEdit saveItem 3', res)
+            haveSaved = true
             if (res) {
                 goto(`/news/${updatedItem.slug || itemBup.slug}?img=${cld_public_id}`)
             }            
@@ -192,9 +198,16 @@
 
     onDestroy(
         () => {
-            console.log('ONDESTROY', {imgsKept})
-            if (imgsKept.length > 0) {
-                f.deleteAllImgsFromArray(imgsKept)
+            if (!haveSaved) {
+                showWarningLeavingPage = true
+                console.log('ONDESTROY na pas sauvegardé', {showWarningLeavingPage})
+            }
+            if (haveSaved) {
+                console.log('ONDESTROY a sauvegardé', {showWarningLeavingPage})
+            }
+            console.log('ONDESTROY', {imgsToDelete})
+            if (imgsToDelete.length > 0) {
+                f.deleteAllImgsFromArray(imgsToDelete)
             }
         }
     )
@@ -203,7 +216,7 @@
 <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript">  
 </script>
 </svelte:head>
-<div class="edit-news">
+<div class="edit-news has-background-white-ter p-3 block">
     <div class="banner-choice">
         <p class="label">Bannière</p>
         {#if cld_public_id}
@@ -226,7 +239,7 @@
         {/if}
         
     </div>
-    <form>
+
         <TextInput
             id="title"
             label="Titre"
@@ -246,26 +259,6 @@
             bind:value={redaction}
              />
 
-        <div class="buttons">
-            <Button
-            is-success
-            enabled={formValid}
-            fct={saveItem}
-            >
-                Enregistrer
-            </Button>
-            {#if !itemToEdit}
-                <Button
-                is-warning
-                enabled={formValid}
-                fct={resetForm}
-                >
-                    Effacer
-                </Button>
-            {/if}
-
-        </div>
-    </form>
     <GallUpload 
     {thumbGallery}
     showAdvancedOptions={false}
@@ -274,6 +267,26 @@
     on:deleting-Imgs={deletingImgs}
     on:empty-gallery={emptyGallery}
     />
+</div>
+
+<div class="buttons">
+    <Button
+    is-success
+    enabled={formValid}
+    fct={saveItem}
+    >
+        Enregistrer
+    </Button>
+    {#if !itemToEdit}
+        <Button
+        is-warning
+        enabled={formValid}
+        fct={resetForm}
+        >
+            Effacer
+        </Button>
+    {/if}
+
 </div>
 
 <style>

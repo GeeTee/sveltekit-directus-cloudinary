@@ -3,6 +3,7 @@
     import {CLOUDINARY_NAME} from '$lib/helpers/Env'
     import f from '$lib/helpers/scripts'
     import Button from '$lib/UI/Button.svelte'
+    import Confirmation from '$lib/UI/ConfirmationAction.svelte'
 
     const dispatch = createEventDispatcher();
 
@@ -20,21 +21,16 @@
     $: buttonText = thumbGallery.length > 0 ? 'Compléter votre galerie' : 'Ajouter vos photos'
 
     let isLoading = false
+    //MODAL
+    let openModal = false
+    const text = `
+        Pour détruire toutes les images de cette galerie, il vous faut recopier le mot : <br /><span class="tag is-warning">Effacer</span> <br />dans la champ ci dessous puis cliquer le bouton rouge : Confirmer
+        `
 
     const handleUploadImage = () => {
         console.log('handleUploadImage')
         isLoading = true;
         cloudinary.openUploadWidget({
-            // prepareUploadParams: function(cb, params) {
-            // if (params.tags == null){
-            //     params.tags=tagBase + "," + tagOwner + "," + tagElt
-            // }
-            // else{ 
-            //     params.tags = params.tags + "," + tagBase + "," + tagOwner + "," + tagElt
-            // }
-
-            // cb({tags: params.tags});
-            // },
             cloudName: CLOUDINARY_NAME, 
             uploadPreset,
             sources: [ 'local', 'url', 'camera', 'facebook', 'instagram', 'google_drive'],
@@ -113,14 +109,27 @@
         dispatch('deleting-Imgs', {public_id, slug})
     }
 
+    // EMPTY GALLERY IMAGES
+    const canDelete = () => {
+        console.log('canDelete')
+        openModal = false
+        emptyAllGallery()
+    }
     const emptyAllGallery = () => {
         console.log('Gallery emptyAllGallery')
         dispatch('empty-gallery')
     }
+    const confirmEmptyGallery = () => {
+        openModal = true
+        console.log('confirmEmptyGallery', {openModal})
+    }
+</script> 
 
-</script>
-<p class="label">Gérer la gallerie images</p>
-{JSON.stringify(thumbGallery)}
+{#if thumbGallery.length > 0}
+    <p class="label">Gérer la gallerie images</p>
+{:else}
+    <p class="label">Alimenter la gallerie images</p>
+{/if}
 {#if thumbGallery.length > 0}
      <ol>
         {#each thumbGallery as {slug, public_id}}
@@ -161,7 +170,7 @@
     {#if thumbGallery.length > 0}
         <button 
         class="button is-danger" 
-        on:click={emptyAllGallery}
+        on:click={confirmEmptyGallery}
         >
         <span class="icon is-small"><i class="fas fa-camera-retro"></i></span>
         <span>Enlever toutes les images</span>
@@ -169,6 +178,14 @@
     {/if}
 
 </div>
+<Confirmation
+{openModal}
+title='Enlever toutes les images de la galerie'
+slug='Effacer'
+{text}
+on:confirmation={canDelete}
+on:leaving={() => openModal = false}
+ />
 
 <style lang="scss">
     ol {

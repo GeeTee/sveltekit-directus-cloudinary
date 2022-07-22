@@ -4,8 +4,6 @@
     import {getContext} from 'svelte'
     import f from '$lib/helpers/scripts'
     import Banner from '$lib/partials/images/cld/BannerSquare300Cld.svelte'
-
-    const cldPath = getContext('cldPath')
 </script>
 <h1 class="title mb-3">Liste de news ({$n.length})</h1>
 {#if $n.length > 0}

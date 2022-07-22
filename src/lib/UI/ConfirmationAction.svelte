@@ -16,12 +16,13 @@
     const dispatch = createEventDispatcher();
 
     const closeModale = () => {
-        openModal = false
+        // openModal = false
+        dispatch('leaving')
     }
 
     const confirmDeleting = () => {
         dispatch('confirmation')
-        openModal = false
+        // openModal = false
     }
 
     // const checkVallidity = () => {
