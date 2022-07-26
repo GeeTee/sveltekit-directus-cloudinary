@@ -7,7 +7,7 @@
     <ul>
         {#each $ar as {id, title, slug} (id)}
             <li>
-                <a sveltekit:prefetch href="articles/{slug}}" {title}>{title} &raquo;</a>
+                <a sveltekit:prefetch href="articles/{slug}" {title}>{title} &raquo;</a>
             </li>
         {/each}
     </ul>

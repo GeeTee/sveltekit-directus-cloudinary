@@ -16,6 +16,7 @@ const getAllArticles = async () => {
                         slug 
                         banner
                         blocks
+                        gallery
                     }
                 }
             `
