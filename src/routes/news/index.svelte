@@ -1,7 +1,6 @@
 
 <script>
     import n from '$lib/stores/newsStore'
-    import {getContext} from 'svelte'
     import f from '$lib/helpers/scripts'
     import Banner from '$lib/partials/images/cld/BannerSquare300Cld.svelte'
 </script>

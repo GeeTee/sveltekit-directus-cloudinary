@@ -1,7 +1,7 @@
 <script context="module">
     import r from '$lib/helpers/req'
     export const load = async () => {
-        const items = await r.getAllTest()
+        const items = await r.getAllArticles()
         return {
             props: {
                 items
@@ -10,12 +10,11 @@
     }
 </script>
 <script>
-    import n from '$lib/stores/newsStore'
+    import a from '$lib/stores/articlesStore'
     export let items = []
-    // console.log('news lay expected', {items})
-    n.setNews(items)
+    console.log('expected articles : ', {items})
+    a.setArticles(items)
 </script>
-
 <div class="container">
     <slot />
 </div>

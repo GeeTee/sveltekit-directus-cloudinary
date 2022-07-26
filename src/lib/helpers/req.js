@@ -1,6 +1,33 @@
 import {DIRECTUS_URL} from './Env'
 const url = DIRECTUS_URL
 
+const getAllArticles = async () => {
+    const res = await fetch(`${url}/graphql`, {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            query: `
+                query {
+                    advanced_articles {
+                        id
+                        title
+                        slug 
+                        banner
+                        blocks
+                    }
+                }
+            `
+        })
+    })
+
+    const {data: {advanced_articles}} = await res.json()
+    const items = advanced_articles
+    console.log('req getAllArticles', {items})
+    return items
+}
+
 const getAllTest = async () => {
     const res = await fetch(`${url}/graphql`, {
         method: 'POST',
@@ -82,6 +109,7 @@ const getCurrentUser = async () => {
 }
 
 const reqServices = {
+    getAllArticles,
     getAllTest,
     getTestSlug,
     getCurrentUser

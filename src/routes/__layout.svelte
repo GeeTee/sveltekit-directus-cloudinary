@@ -98,7 +98,13 @@
       beAuthenticated: true
 		}
 	])
-    setContext('metiersLinks', [])
+    setContext('metiersLinks', [
+		{
+			href: '/articles',
+			title: 'articles',
+      beAuthenticated: false
+		},
+    ])
     setContext('navAdminLinks', [
 		{
 			href: '/mentions-legales',
