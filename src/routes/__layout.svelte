@@ -127,7 +127,12 @@
         href: '/backend/news',
         title: 'News',
         beAuthenticated: true
-      },      
+      }, 
+      {
+        href: '/backend/articles',
+        title: 'Articles',
+        beAuthenticated: true
+      },     
     ])
     setContext('footerLargeur','container')
     setContext('vcard',{

@@ -2,6 +2,8 @@
     import ar from '$lib/stores/articlesStore'
     import {page} from '$app/stores'
 
+    import Content from '$lib/components/articles/BlockContent.svelte'
+
     const {slug} = $page.params 
     const item = $ar.filter(item => item.slug === slug)[0]
 </script>
@@ -10,30 +12,19 @@
         <h1 class="subtitle">{item?.title}</h1>
     </header>
     <div>
-        <p>banner public_id : {item?.banner}</p>
+        <p>banner public_id : {item?.cld_public_id}</p>
     </div>
     <div class="content">
         {#if  item?.blocks.length > 0}
-             {#each item?.blocks as block}
-                 <ul>
-                    <li>title : {block?.title}</li>
-                    <li>html: {@html block?.text}</li>
-                    <li>
-                        image <ul>
-                            <li>src: {block?.image}</li>
-                            <li>width: {block?.image_width}</li>
-                            <li>height: {block?.image_height}</li>
-                            <li>position: {block?.image_position}</li>
-                        </ul>
-                    </li>
-                    
-                 </ul>
-             {/each}
+            {#each item?.blocks as block}
+                <Content {block} />
+            {/each}
         {/if}
     </div>
+    <hr>
     <div class="gallery">
-        {#if item?.gallery !== null && item?.gallery?.length > 0}
-             {#each item?.gallery as {public_id, width, height}}
+        {#if item?.gallery_photos !== null && item?.gallery_photos?.length > 0}
+             {#each item?.gallery_photos as {public_id, width, height}}
                  <ul>
                     <li>public_id: {public_id}</li>
                     <li> width: {width}</li>

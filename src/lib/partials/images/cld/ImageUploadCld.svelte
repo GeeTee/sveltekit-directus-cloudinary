@@ -8,7 +8,10 @@
     const dispatch = createEventDispatcher();
 
     export let cld_public_id = ''
-    $: src = cld_public_id !== ''? f.bannerResizeW(500, cld_public_id) : false  
+    export let imgResize = f.bannerResizeW
+    export let w = 500
+
+    $: src = cld_public_id !== ''? imgResize(w, cld_public_id) : false  
     // $: src = cld_public_id !== ''? `https://res.cloudinary.com/geeteeimages/image/upload/c_scale,w_500,q_auto,f_jpg/Actibenne/banners/${cld_public_id}` : false  
 
     export let buttonText = 'Changer'

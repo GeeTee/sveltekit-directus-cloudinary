@@ -14,9 +14,9 @@ const getAllArticles = async () => {
                         id
                         title
                         slug 
-                        banner
+                        cld_public_id
                         blocks
-                        gallery
+                        gallery_photos
                     }
                 }
             `

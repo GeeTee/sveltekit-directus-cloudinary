@@ -40,8 +40,20 @@ const deleteOneEltFromArray = (arr, value) => {
     
 
 // cloudinary
+const imgSquareW = (w, public_id) => {
+    return `https://res.cloudinary.com/geeteeimages/image/upload/ar_1,c_thumb,q_auto,w_${w},h_${w}/${public_id}`
+}
+
 const bannerResizeW = (w, public_id) => {
     return `https://res.cloudinary.com/geeteeimages/image/upload/c_scale,dpr_1.0,q_auto,w_${w}/${public_id}`
+}
+
+const imgNoDim = (public_id) => {
+    return `https://res.cloudinary.com/geeteeimages/image/upload/dpr_1.0,q_auto/${public_id}`
+}
+
+const bannerResizeWH = (w, h, public_id) => {
+    return `https://res.cloudinary.com/geeteeimages/image/upload/c_crop,dpr_1.0,q_auto,g_faces,w_${w},h_${h}/${public_id}`
 }
 
 const thumbImg = (public_id) => {
@@ -67,6 +79,9 @@ const deleteAllImgsFromArray = async (array) => {
 const scriptsServices = {
     condensifyPhone,
     checkAuthentif,
+    imgNoDim,
+    imgSquareW,
+    bannerResizeWH,
     bannerResizeW,
     thumbImg,
     deleteOneImg,

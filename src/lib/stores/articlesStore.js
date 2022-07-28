@@ -15,7 +15,7 @@ const customArticlesStore = {
             return [newArticle, ...items];
         });
     },
-    updatePost: (id, ArticleData) => {
+    updateArticle: (id, ArticleData) => {
         articles.update((items) => {
         const ArticleIdx = items.findIndex((item) => item.id === id);
         const updatedArticle = {
