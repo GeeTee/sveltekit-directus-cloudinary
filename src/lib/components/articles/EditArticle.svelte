@@ -51,6 +51,7 @@
     let editTitle = false
     let editBanner = false
     let editGallery = false
+    let galleryAction = ''
 
     if (itemToEdit) {
         console.log('EditNews', {itemToEdit})
@@ -233,20 +234,22 @@
                 }
             ]
         });
+        galleryAction = 'adding'
         console.log('getGalleryInfo', {imgsKept}, {gallery_photos})
     }
     const deletingImgs = (e) => {
         let {public_id, slug} = e.detail
-        console.log('EditNews deletingImgs', {public_id, slug})
+        console.log('EditArticle deletingImgs', {public_id, slug})
         imgsKept.push(slug)
         thumbGallery = thumbGallery.filter(item => item.public_id !== public_id)
         gallery_photos = gallery_photos.filter(item => item.public_id !== public_id)
         dnGallery = false
+        galleryAction = 'removing'
     }
     const emptyGallery = () => {
-        console.log('EditNews emptyGallery 1', {imgsKept})
+        console.log('EditArticle emptyGallery 1', {imgsKept})
         imgsKept = thumbGallery.map(img => {return img.slug})
-        console.log('EditNews emptyGallery 2', {imgsKept})
+        console.log('EditArticle emptyGallery 2', {imgsKept})
         thumbGallery = []
         gallery_photos = []
         dnGallery = false
@@ -259,19 +262,31 @@
         editGallery = false
     }
     const cancelModifGallery = async () => {
-        const thumbGallSlug = await itemBup.gallery_photos.map(img => {
-            return f.slashToUnderscore(img.public_id)
-        })
-        console.log('cancelModifGallery 1', {imgsKept}, {thumbGallSlug})
+        if (galleryAction === 'removing') {
+            const thumbGallSlug = await itemBup.gallery_photos.map(img => {
+                return f.slashToUnderscore(img.public_id)
+            })
+            console.log('cancelModifGallery removing 1', {imgsKept}, {thumbGallSlug})
 
-        await thumbGallSlug.forEach(slug => {
-            if (imgsKept.includes(slug)) {
-                imgsKept = imgsKept.filter(item => item !== slug)
-            }
-        });
-
-        console.log('cancelModifGallery 2', {imgsKept}, {thumbGallSlug})
+            await thumbGallSlug.forEach(slug => {
+                if (imgsKept.includes(slug)) {
+                    imgsKept = imgsKept.filter(item => item !== slug)
+                }
+            });
+            thumbGallery = []
+            thumbGallery = itemBup.gallery_photos.map(img => {
+                return {
+                    slug: f.slashToUnderscore(img.public_id),
+                    public_id: img.public_id
+                }
+            })
+            console.log('cancelModifGallery removing 2', {imgsKept}, {thumbGallSlug}, {thumbGallery})
+        }
         // imgsKept = []
+        if (galleryAction === 'adding') {
+            console.log('cancelModifGallery adding 1', {imgsKept})
+        }
+
         editGallery = false
     }
 
