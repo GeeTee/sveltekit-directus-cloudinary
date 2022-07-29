@@ -32,17 +32,17 @@
     const renewIllustrationId = (e) => {
         image = e.detail.public_id
         console.log('renewIllustrationId', {image})
-        //TODO:
     }
 
     const getNewIllustrationId = (e) => {
-        console.log('getNewIllustrationId')
+        image = e.detail.public_id
+        console.log('getNewIllustrationId', {image})
         //TODO:
     }
 
-    const deleteIllustration = async () => {
-        console.log('deleteIllustration')
+    const deleteIllustration = () => {
         image = ''
+        console.log('deleteIllustration image : ', {image})
     }
 
     const saveBlock = () => {
@@ -56,18 +56,29 @@
         if (text !== blockBup.text) {
             blockWithChanges.text = text
         }
-        if (image === '' && blockBup.image !== '') { // on a enlevé l'image et on confirme donc la supprimme
-            f.deleteOneImg(f.slashToUnderscore(blockBup.image))
-            image_width = ''
-            image_height = ''
-            image_position = ''
-        }
-        if ( image !== '' && image !== blockBup.image) { // on a changé l'image et on confirme donc détruite le bup
+        console.log('saveBlock point img', {image}, blockBup.image)
+        if (image === '' && blockBup.image !== '') { 
+            console.log('on a enlevé l image et on confirme donc la supprimme', {image})
             f.deleteOneImg(f.slashToUnderscore(blockBup.image))
             blockWithChanges.image = image
             blockWithChanges.image_width = image_width
             blockWithChanges.image_height = image_height
             blockWithChanges.image_position = image_position
+        }
+        if ( image !== '' && image !== blockBup.image) { 
+            console.log('on a changé l image et on confirme donc détruite le bup',{image} )
+            f.deleteOneImg(f.slashToUnderscore(blockBup.image))
+            blockWithChanges.image = image
+            blockWithChanges.image_width = image_width
+            blockWithChanges.image_height = image_height
+            blockWithChanges.image_position = image_position
+        }
+        if ( image !== '' && blockBup.image === '') { 
+            console.log('on ajoute une image, il n y en avait pas',{image} )
+            blockWithChanges.image = image
+            blockWithChanges.image_width = 800
+            blockWithChanges.image_height = 800
+            blockWithChanges.image_position = 'right'
         }
         console.log(('saveBlock'), {blockWithChanges})
 
@@ -76,7 +87,12 @@
     }
 
     const cancelModifBlock = () => {
-        block = {...blockBup}
+        title = blockBup.title
+        text = blockBup.text
+        image = blockBup.image
+        image_width = blockBup.image_width
+        image_height = blockBup.image_height
+        image_position = blockBup.image_position
         console.log('cancelModifBlock', {block})
         isEdited = false
     }
@@ -154,7 +170,10 @@
         <div class="actions ml-3">
             <span 
             class="has-text-info"
-            on:click={() => isEdited = true}
+            on:click={() => {
+                isEdited = true
+                console.log('open block', {block})
+            }}
             >
                 <i class="fas fa-pen-square"></i>
             </span>
