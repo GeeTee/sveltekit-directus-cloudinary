@@ -10,6 +10,8 @@
     export let cld_public_id = ''
     export let imgResize = f.bannerResizeW
     export let w = 500
+    export let showDeleteImg = false
+    export let buttonTextDelete = 'Enlever'
 
     $: src = cld_public_id !== ''? imgResize(w, cld_public_id) : false  
     // $: src = cld_public_id !== ''? `https://res.cloudinary.com/geeteeimages/image/upload/c_scale,w_500,q_auto,f_jpg/Actibenne/banners/${cld_public_id}` : false  
@@ -133,7 +135,7 @@
 {:else}
         <strong>Pas d'image choisie</strong>
 {/if}
-<div class="block">
+<div class="buttons block">
     <button 
     class:is-loading={isLoading} 
     class:is-primary={!imageInstalled} 
@@ -144,6 +146,15 @@
     <span class="icon is-small"><i class="fas fa-camera-retro"></i></span>
     <span>{buttonText}</span>
     </button>
+    {#if showDeleteImg}
+    <button 
+    class="button is-danger" 
+    on:click={() => dispatch('delete-img')}
+    >
+    <span class="icon is-small"><i class="fas fa-camera-retro"></i></span>
+    <span>{buttonTextDelete}</span>
+    </button>
+    {/if}
 </div>
 <Notification
 {dn}

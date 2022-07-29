@@ -39,6 +39,11 @@
         //TODO:
     }
 
+    const deleteIllustration = async () => {
+        console.log('deleteIllustration')
+        image = ''
+    }
+
     const saveBlock = () => {
         console.log(('saveBlock'), {id})
         const blockWithChanges = {
@@ -50,16 +55,16 @@
         if (text !== blockBup.text) {
             blockWithChanges.text = text
         }
-        if (image !== blockBup.image) {
+        if (image === '' && blockBup.image !== '') { // on a enlevé l'image et on confirme donc la supprimme
+            f.deleteOneImg(f.slashToUnderscore(blockBup.image))
+            image_width = ''
+            image_height = ''
+            image_position = ''
+        }
+        if ( image !== '' && image !== blockBup.image) {
             blockWithChanges.image = image
-        }
-        if (image_width !== blockBup.image_width) {
             blockWithChanges.image_width = image_width
-        }
-        if (image_height !== blockBup.image_height) {
             blockWithChanges.image_height = image_height
-        }
-        if (image_position !== blockBup.image_position) {
             blockWithChanges.image_position = image_position
         }
         console.log(('saveBlock'), {blockWithChanges})
@@ -68,7 +73,8 @@
     }
 
     const cancelModifBlock = () => {
-        console.log('cancelModifBlock')
+        block = {...blockBup}
+        console.log('cancelModifBlock', {block})
         isEdited = false
     }
 </script>
@@ -98,19 +104,21 @@
                 <ImagUpload 
                 cld_public_id={image} 
                 {croppingAspectRatio} 
-                imageInstalled={true}
-                uploadPreset='Actibenne_banners' 
+                imageInstalled={true} 
+                showDeleteImg={true}
+                uploadPreset='Actibenne_illustrations' 
                 dispatchTitle='renew-illustration-id'
                 dn={dnBanner}
                 imgResize={f.imgSquareW}
                 w=200
                 on:renew-illustration-id={renewIllustrationId}
+                on:delete-img={deleteIllustration}
                 />
             {:else}
                 <ImagUpload 
                 buttonText='Choisir' 
-                {croppingAspectRatio} 
-                uploadPreset='Actibenne_banners' 
+                {croppingAspectRatio}
+                uploadPreset='Actibenne_illustrations' 
                 dispatchTitle='get-new-illustration-id'
                 on:get-new-illustration-id={getNewIllustrationId}
                 />
@@ -128,7 +136,7 @@
                 enabled={true}
                 fct={cancelModifBlock}
                 >
-                    Abandonner la modif
+                    Fermer / Abandonner
                 </Button>
             </div>
         </div>
