@@ -284,10 +284,6 @@
             })
             console.log('cancelModifGallery removing 2', {imgsKept}, {thumbsGallSlugRef}, {thumbGallery})
         }
-        // imgsKept = []
-        // if (galleryAction === 'adding') {
-        //     console.log('cancelModifGallery adding 1', {imgsKept}, {thumbsGallSlugRef}, {thumbGallery})
-        // }
         // ADDING => QUAND ON QUITTE LA PAGE, ELLE(S) EST / SONT ENLEVÉES
 
         editGallery = false
@@ -429,6 +425,7 @@
         {#each blocks as block}
                 <Block 
                 {block} 
+                updateBlock={true}
                 on:update-block={updateBlock}
                 />
         {/each}

@@ -10,7 +10,8 @@
 
     export let block = {}
 
-    let updateBlock = false
+    export let updateBlock = false
+    let isEdited = false
     const blockBup = {...block}
     let {id,title, text, image, image_width, image_height, image_position} = block
 
@@ -65,60 +66,105 @@
 
         dispatch('update-block', {blockWithChanges})
     }
+
+    const cancelModifBlock = () => {
+        console.log('cancelModifBlock')
+        isEdited = false
+    }
 </script>
 
 {#if updateBlock}
-<div class="has-background-warning-light block">
-    <p>id: {id}</p>
-        <TextInput
-            id="subtitle"
-            label="Titre du blcok"
-            type="text"
-            validityMessage="Entrez votre Titre"
-            controlType="input"
-            bind:value={title}
-            on:input={event => (title = event.target.value)} />
+    {#if isEdited}
+        <div class="has-background-warning-light block">
+            <p>id: {id}</p>
+            <TextInput
+                id="subtitle"
+                label="Titre du blcok"
+                type="text"
+                validityMessage="Entrez votre Titre"
+                controlType="input"
+                bind:value={title}
+                on:input={event => (title = event.target.value)} />
 
+            <TextInput
+                id="redaction"
+                label="Rédaction"
+                validityMessage="Entrez votre Titre"
+                controlType="textarea"
+                bind:value={text}
+                />
 
-        <TextInput
-            id="redaction"
-            label="Rédaction"
-            validityMessage="Entrez votre Titre"
-            controlType="textarea"
-            bind:value={text}
-             />
-
-        {#if image}
-            <ImagUpload 
-            cld_public_id={image} 
-            {croppingAspectRatio} 
-            imageInstalled={true}
-            uploadPreset='Actibenne_banners' 
-            dispatchTitle='renew-illustration-id'
-            dn={dnBanner}
-            imgResize={f.imgSquareW}
-            w=200
-            on:renew-illustration-id={renewIllustrationId}
-            />
-        {:else}
-            <ImagUpload 
-            buttonText='Choisir' 
-            {croppingAspectRatio} 
-            uploadPreset='Actibenne_banners' 
-            dispatchTitle='get-new-illustration-id'
-            on:get-new-illustration-id={getNewIllustrationId}
-            />
-        {/if}
+            {#if image}
+                <ImagUpload 
+                cld_public_id={image} 
+                {croppingAspectRatio} 
+                imageInstalled={true}
+                uploadPreset='Actibenne_banners' 
+                dispatchTitle='renew-illustration-id'
+                dn={dnBanner}
+                imgResize={f.imgSquareW}
+                w=200
+                on:renew-illustration-id={renewIllustrationId}
+                />
+            {:else}
+                <ImagUpload 
+                buttonText='Choisir' 
+                {croppingAspectRatio} 
+                uploadPreset='Actibenne_banners' 
+                dispatchTitle='get-new-illustration-id'
+                on:get-new-illustration-id={getNewIllustrationId}
+                />
+            {/if}
+            <div class="buttons">
+                <Button
+                is-warning
+                enabled={true}
+                fct={saveBlock}
+                >
+                    Enregistrer la modif
+                </Button>
+                <Button
+                is-info
+                enabled={true}
+                fct={cancelModifBlock}
+                >
+                    Abandonner la modif
+                </Button>
+            </div>
+        </div>
+    {/if}
+    {#if !isEdited}
         
-        <Button
-        is-success
-        enabled={true}
-        fct={saveBlock}
-        >
-            Confirmer
-        </Button>
-</div>
+    <div class="container">
+        <div>
+            <Content {block} />
+        </div>
+        <div class="actions ml-3">
+            <span 
+            class="has-text-info"
+            on:click={() => isEdited = true}
+            >
+                <i class="fas fa-pen-square"></i>
+            </span>
+        </div>
+    </div>
+    {/if}
 {/if}
 {#if !updateBlock}
      <Content {block} />
 {/if}
+
+<style lang="scss">
+    .container {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+    }
+    .actions {
+        display: flex;
+        flex-direction: column;
+    }
+    i:hover {
+        cursor: pointer;
+    }
+</style>
