@@ -12,7 +12,8 @@
     import Block from "../../UI/Block.svelte";
     import ImagUpload from '$lib/partials/images/cld/ImageUploadCld.svelte'
     import GallUpload from '$lib/partials/images/cld/GalleryImgsUploadCld.svelte'
-    import Button from '../../UI/Button.svelte';
+    import ThumbsGallery from '../../partials/images/ThumbsGallery.svelte'
+    import Button from '../../UI/Button.svelte'
 
     export let itemToEdit = undefined
 
@@ -48,6 +49,8 @@
     $: formValid = titleValid && redactionValid
 
     let editTitle = false
+    let editBanner = false
+    let editGallery = false
 
     if (itemToEdit) {
         console.log('EditNews', {itemToEdit})
@@ -79,6 +82,12 @@
             // let imageToDelete = ''
             
             if (cld_public_id !== itemBup.cld_public_id) {
+                // on enlève la banner
+                if (cld_public_id === '') {
+                    f.deleteOneImg(f.slashToUnderscore(itemBup.cld_public_id))
+                    itemBup.cld_public_id = ''
+                }
+
                 updatedItem.cld_public_id = cld_public_id
                 imgsKept = f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(cld_public_id))
                 imgsToDelete = [...imgsKept]
@@ -146,6 +155,8 @@
     }
 
     // BANNER
+    $: bannerValid = (cld_public_id !== itemBup.cld_public_id)? true : false
+    $: deleteBannerValid = (cld_public_id !== '')? true : false
     const getNewBannerId = (e) => {
         const {public_id} = e.detail
         console.log('getNewBannerId', public_id)
@@ -163,9 +174,23 @@
         console.log('renewBannerId', {cld_public_id})
         dnBanner = false
     }
+    const saveNewBanner = async () => {
+        await saveItem()
+        editBanner = false        
+    }
+    const editingBanner = () => {
+        editBanner = true
+    }
+    const deletingBanner = () => {
+        cld_public_id = ''
+    }
+    const cancelModifBanner = () => {
+        cld_public_id = itemBup.cld_public_id
+        editBanner = false
+    }
 
     // TITLE
-    $: titleValid = (title !== itemBup.title) ? true : false
+    $: titleValid = (title !== itemBup.title && title !== '') ? true : false
     const editingTitle = () => {
         editTitle = true
     }
@@ -179,6 +204,10 @@
     }
 
     // GALLERY IMGS
+    let thumbGallCompo = ThumbsGallery
+    let thumbGallProps = {
+        thumbGallery,
+    }
     const getGalleryInfo = (e) => {
         const cldArray = e.detail 
         console.log('getGalleryInfo', cldArray)
@@ -222,6 +251,29 @@
         gallery_photos = []
         dnGallery = false
     }
+    const editingGallery = () => {
+        editGallery = true
+    }
+    const saveNewGallery = async () => {
+        await saveItem()
+        editGallery = false
+    }
+    const cancelModifGallery = async () => {
+        const thumbGallSlug = await itemBup.gallery_photos.map(img => {
+            return f.slashToUnderscore(img.public_id)
+        })
+        console.log('cancelModifGallery 1', {imgsKept}, {thumbGallSlug})
+
+        await thumbGallSlug.forEach(slug => {
+            if (imgsKept.includes(slug)) {
+                imgsKept = imgsKept.filter(item => item !== slug)
+            }
+        });
+
+        console.log('cancelModifGallery 2', {imgsKept}, {thumbGallSlug})
+        // imgsKept = []
+        editGallery = false
+    }
 
     // BLOCKS
     const updateBlock = (e) => {
@@ -260,12 +312,14 @@
 </svelte:head>
 {#if itemToEdit}
 <div class="edit-news has-background-white-ter p-3 block">
+    {#if editBanner}
     <div class="banner-choice">
         <p class="label">Bannière</p>
         {#if cld_public_id}
             <ImagUpload 
             {cld_public_id} 
             {croppingAspectRatio} 
+            text={`Pensez à enregistrer le choix de votre photo. <br />Bouton jaune ci dessous :  "Enregistrer la modif"`}
             imageInstalled={true}
             uploadPreset='Actibenne_banners' 
             dispatchTitle='renew-banner-id'
@@ -276,13 +330,45 @@
             <ImagUpload 
             buttonText='Choisir' 
             {croppingAspectRatio} 
+            text={`Pensez à enregistrer le choix de votre photo. <br />Bouton jaune ci dessous :  "Enregistrer la modif"`}
             uploadPreset='Actibenne_banners' 
             dispatchTitle='get-new-banner-id'
             on:get-new-banner-id={getNewBannerId}
             />
         {/if}
-        
+            <Button
+            is-danger
+            enabled={deleteBannerValid}
+            fct={deletingBanner}
+            >
+                Enlever la bannière
+            </Button>
+        <div class="buttons">
+            <Button
+            is-warning
+            enabled={bannerValid}
+            fct={saveNewBanner}
+            >
+                Enregistrer la modif
+            </Button>
+            <Button
+            is-info
+            enabled={true}
+            fct={cancelModifBanner}
+            >
+                Abandonner la modif
+            </Button>
+        </div>       
     </div>
+    {/if}
+    {#if !editBanner}
+         <Html 
+        content={`<div class="edit-banner block">
+                    <img src=${f.bannerResizeW(500, cld_public_id)} alt="">
+                </div>`} 
+        on:edit-elt={editingBanner}
+        />
+    {/if}
     {#if editTitle}
         <TextInput
             id="title"
@@ -293,13 +379,16 @@
             controlType="input"
             value={title}
             on:input={event => (title = event.target.value)} />
+        {#if title === ''}
+             <span class="has-text-danger">Vous ne pouvez pas effacer le titre de l'article => abandonner la modif</span>
+        {/if}
         <div class="buttons">
             <Button
             is-warning
             enabled={titleValid}
             fct={saveNewTitle}
             >
-                Enregistret la modif
+                Enregistrer la modif
             </Button>
             <Button
             is-info
@@ -318,15 +407,16 @@
     {/if}
 
 
-        {#if blocks.length > 0}
-            {#each blocks as block}
-                 <Block 
-                 {block} 
-                 on:update-block={updateBlock}
-                 />
-            {/each}
-        {/if}
+    {#if blocks.length > 0}
+        {#each blocks as block}
+                <Block 
+                {block} 
+                on:update-block={updateBlock}
+                />
+        {/each}
+    {/if}
 
+    {#if editGallery}
     <GallUpload 
     {thumbGallery}
     showAdvancedOptions={false}
@@ -336,6 +426,32 @@
     on:deleting-Imgs={deletingImgs}
     on:empty-gallery={emptyGallery}
     />
+    <div class="buttons">
+        <Button
+        is-warning
+        enabled={true}
+        fct={saveNewGallery}
+        >
+            Enregistrer la modif
+        </Button>
+        <Button
+        is-info
+        enabled={true}
+        fct={cancelModifGallery}
+        >
+            Abandonner la modif
+        </Button>
+    </div>
+    {/if}
+    {#if !editGallery}
+        <Html 
+        type='component'
+        component={thumbGallCompo}
+        props={thumbGallProps}
+        on:edit-elt={editingGallery}
+        />
+
+    {/if}
 </div>
 
 {/if}

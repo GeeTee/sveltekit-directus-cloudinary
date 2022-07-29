@@ -1,32 +1,46 @@
 <script>
     import {createEventDispatcher} from 'svelte'
+import AdvArticleContent from '../components/articles/AdvArticleContent.svelte';
+import Block from './Block.svelte';
 
     const dispatch = createEventDispatcher();
 
     export let content = 'Mon content'
 
-	let classBase = []
-	// console.log($$restProps)
-	for (const key in $$restProps) {
-		if(!classBase.includes('key')) {
-			classBase.push(key)
-		}
-	}
-	// console.log({classBase})
-	let classL = classBase.join(' ')
+    export let type = 'html'
+
+    export let component
+    export let props = {}
+
 </script>
-<div class="container">
-    {@html content}
-    <div class="actions">
-        <span 
-        class="has-text-info"
-        on:click={() => dispatch('edit-elt')}
-        >
-            <i class="fas fa-pen-square"></i>
-        </span>
-        <span class="has-text-danger"><i class="fas fa-trash-alt"></i></span>
+{#if type === 'html'}
+    <div class="container">
+        {@html content}
+        <div class="actions ml-3">
+            <span 
+            class="has-text-info"
+            on:click={() => dispatch('edit-elt')}
+            >
+                <i class="fas fa-pen-square"></i>
+            </span>
+        </div>
     </div>
-</div>
+{/if}
+{#if type === 'component'}
+    <div class="container">
+        <div>
+            <svelte:component this={component} {...props} />
+        </div>
+        <div class="actions ml-3">
+            <span 
+            class="has-text-info"
+            on:click={() => dispatch('edit-elt')}
+            >
+                <i class="fas fa-pen-square"></i>
+            </span>
+        </div>
+    </div>
+{/if}
 <style lang="scss">
     .container {
         align-items: center;

@@ -24,6 +24,7 @@
     export let croppingCoordinatesMode = 'custom'
     export let dispatchTitle = 'get-avatar-public-id'
     export let dn = true
+    export let text = 'Enregistrer pour garder vos modifications'
 
     let isLoading = false
 
@@ -147,6 +148,6 @@
 <Notification
 {dn}
 is-warning
-text='Pensez à enregistrer le changement de bannière. <br />Bouton vert Enregistrer en bas'
+{text}
 />
 
