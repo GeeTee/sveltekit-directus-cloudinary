@@ -30,7 +30,8 @@
     $: console.log('block', {id}, {title}, {text})
 
     const renewIllustrationId = (e) => {
-        console.log('renewIllustration')
+        image = e.detail.public_id
+        console.log('renewIllustrationId', {image})
         //TODO:
     }
 
@@ -61,7 +62,8 @@
             image_height = ''
             image_position = ''
         }
-        if ( image !== '' && image !== blockBup.image) {
+        if ( image !== '' && image !== blockBup.image) { // on a changé l'image et on confirme donc détruite le bup
+            f.deleteOneImg(f.slashToUnderscore(blockBup.image))
             blockWithChanges.image = image
             blockWithChanges.image_width = image_width
             blockWithChanges.image_height = image_height
@@ -70,6 +72,7 @@
         console.log(('saveBlock'), {blockWithChanges})
 
         dispatch('update-block', {blockWithChanges})
+        isEdited = false
     }
 
     const cancelModifBlock = () => {
@@ -104,6 +107,7 @@
                 <ImagUpload 
                 cld_public_id={image} 
                 {croppingAspectRatio} 
+                buttonText='Remplacer'
                 imageInstalled={true} 
                 showDeleteImg={true}
                 uploadPreset='Actibenne_illustrations' 

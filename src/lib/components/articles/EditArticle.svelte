@@ -52,6 +52,7 @@
     let editBanner = false
     let editGallery = false
     let galleryAction = ''
+    let blockIsUpdated = false
 
     if (itemToEdit) {
         console.log('EditNews', {itemToEdit})
@@ -99,6 +100,10 @@
                 updatedItem.slug = slugify(title, options)
             }
 
+            if (blockIsUpdated) {
+                updatedItem.blocks = blocks
+                console.log('saveItem blocks', {blocks})
+            }
 
             //TODO: Manage gallery
             updatedItem.gallery_photos = gallery_photos
@@ -292,7 +297,7 @@
     // BLOCKS
     const updateBlock = (e) => {
         const {blockWithChanges} = e.detail
-        console.log('updateBlock', {blockWithChanges})
+        console.log('updateBlock EditArticle 1', {blockWithChanges})
         const {id} = blockWithChanges
         let idx = blocks.findIndex(item => item.id === id)
         const blockUpdated = {
@@ -300,7 +305,9 @@
             ...blockWithChanges
         }
         blocks[idx] = blockUpdated
-        console.log('updateBlock', {blocks}, idx, id)
+        console.log('updateBlock EditArticle 2', {blocks}, idx, id)
+        blockIsUpdated = true
+        saveItem()
     }
 
     onDestroy(
