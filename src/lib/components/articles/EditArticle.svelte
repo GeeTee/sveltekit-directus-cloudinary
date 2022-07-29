@@ -108,6 +108,7 @@
                     imgsKept = f.deleteOneEltFromArray(imgsKept, f.slashToUnderscore(elt.public_id))
                     imgsToDelete = [...imgsKept]
                 });
+                thumbGallProps.thumbGallery = thumbGallery
             }
             if (updatedItem.gallery_photos.length === 0 && imgsKept.length > 0) {
                 imgsToDelete = [...imgsKept]
@@ -234,8 +235,9 @@
                 }
             ]
         });
+        
         galleryAction = 'adding'
-        console.log('getGalleryInfo', {imgsKept}, {gallery_photos})
+        console.log('getGalleryInfo adding', {imgsKept}, {gallery_photos})
     }
     const deletingImgs = (e) => {
         let {public_id, slug} = e.detail
@@ -262,13 +264,13 @@
         editGallery = false
     }
     const cancelModifGallery = async () => {
+        const thumbsGallSlugRef = await itemBup.gallery_photos.map(img => {
+            return f.slashToUnderscore(img.public_id)
+        })
         if (galleryAction === 'removing') {
-            const thumbGallSlug = await itemBup.gallery_photos.map(img => {
-                return f.slashToUnderscore(img.public_id)
-            })
-            console.log('cancelModifGallery removing 1', {imgsKept}, {thumbGallSlug})
+            console.log('cancelModifGallery removing 1', {imgsKept}, {thumbsGallSlugRef})
 
-            await thumbGallSlug.forEach(slug => {
+            await thumbsGallSlugRef.forEach(slug => {
                 if (imgsKept.includes(slug)) {
                     imgsKept = imgsKept.filter(item => item !== slug)
                 }
@@ -280,12 +282,13 @@
                     public_id: img.public_id
                 }
             })
-            console.log('cancelModifGallery removing 2', {imgsKept}, {thumbGallSlug}, {thumbGallery})
+            console.log('cancelModifGallery removing 2', {imgsKept}, {thumbsGallSlugRef}, {thumbGallery})
         }
         // imgsKept = []
-        if (galleryAction === 'adding') {
-            console.log('cancelModifGallery adding 1', {imgsKept})
-        }
+        // if (galleryAction === 'adding') {
+        //     console.log('cancelModifGallery adding 1', {imgsKept}, {thumbsGallSlugRef}, {thumbGallery})
+        // }
+        // ADDING => QUAND ON QUITTE LA PAGE, ELLE(S) EST / SONT ENLEVÉES
 
         editGallery = false
     }
