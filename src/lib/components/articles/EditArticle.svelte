@@ -405,13 +405,15 @@
         {/if}
         <div class="buttons">
             <Button
-            is-warning
+            is-outlined
+            is-primary
             enabled={titleValid}
             fct={saveNewTitle}
             >
                 Enregistrer la modif
             </Button>
             <Button
+            is-outlined
             is-info
             enabled={true}
             fct={cancelModifTitle}
@@ -450,13 +452,15 @@
     />
     <div class="buttons">
         <Button
-        is-warning
+        is-primary
+        is-outlined
         enabled={true}
         fct={saveNewGallery}
         >
             Enregistrer la modif
         </Button>
         <Button
+        is-outlined
         is-info
         enabled={true}
         fct={cancelModifGallery}
