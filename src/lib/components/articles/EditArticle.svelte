@@ -1,5 +1,6 @@
 <script>
     import ar from '$lib/stores/articlesStore'
+    import { writable } from 'svelte/store'
     import { getContext, onDestroy } from "svelte";
     import { goto } from '$app/navigation'
 
@@ -20,6 +21,8 @@
     const directus = getContext('directus')
     const articles = directus.items('advanced_articles')
 
+    let parts = writable([])
+
     let id = ''
     let title = ''
     let slug = '' //TODO: => ?????? 
@@ -34,6 +37,8 @@
     const options = {
         lower: true
     }
+
+    $: ll = blocks.length
 
     // CONFIRMATION ACTION ENREGISTER //TODO:
     let haveSaved = false
@@ -62,6 +67,7 @@
         title = itemToEdit.title
         slug = itemToEdit.slug
         blocks = itemToEdit.blocks
+        parts.set(itemToEdit.blocks)
         cld_public_id = itemToEdit.cld_public_id // BAnner
         if (itemToEdit.gallery_photos !== null) {
             gallery_photos = itemToEdit.gallery_photos
@@ -102,6 +108,7 @@
 
             if (blockIsUpdated) {
                 updatedItem.blocks = blocks
+                console.log('saveItem BBlocks', 'blocks.l :', blocks.length, '<br />updatedItem.blocks.l :', updatedItem.blocks.length, '<br />itemToEdit.blocks.l :',  itemToEdit.blocks.length)
                 console.log('saveItem blocks', {blocks})
             }
 
@@ -120,14 +127,16 @@
             }
 
             console.log('itemToEdit saveItem 2', {updatedItem})
-            ar.updateArticle(id, updatedItem)
+                        
             const res = await articles.updateOne(id, updatedItem)
             console.log('itemToEdit saveItem 3', res)
             haveSaved = true
 
-            // if (res) {
-            //     goto(`/news/${updatedItem.slug || itemBup.slug}?img=${cld_public_id}`)
-            // }            
+            if (res) {
+                ar.updateArticle(id, updatedItem)
+                console.log('RRRR', $ar)
+                // goto(`/news/${updatedItem.slug || itemBup.slug}?img=${cld_public_id}`)
+            }            
         }
 
         if (!itemToEdit) {
@@ -309,6 +318,17 @@
         blockIsUpdated = true
         saveItem()
     }
+    const saveNewBlock = (e) => {
+        const {blockCreated} = e.detail
+        console.log('saveNewBlock EditArticle 1', {blockCreated})
+        blocks.push(blockCreated)
+        parts.set([])
+        parts.set(blocks)
+        console.log('saveNewBlock EditArticle 1O', {blocks}, {parts})
+        blockIsUpdated = true
+        saveItem()
+        
+    }
 
     onDestroy(
         () => {
@@ -331,7 +351,7 @@
 <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript">  
 </script>
 </svelte:head>
-{#if itemToEdit}
+
 <div class="edit-news has-background-white-ter p-3 block">
     {#if editBanner}
     <div class="banner-choice">
@@ -430,14 +450,23 @@
     {/if}
 
 
-    {#if blocks.length > 0}
-        {#each blocks as block}
+    {#if $parts.length > 0}
+    {$parts.length}
+        {#each $parts as block}
                 <Block 
                 {block} 
                 updateBlock={true}
                 on:update-block={updateBlock}
                 />
         {/each}
+        <div>
+            <span class="title">Ajouter un block</span>
+            <Block
+            updateBlock={true} 
+            creatingBlock={true}
+            on:save-new-block={saveNewBlock}
+            />
+        </div>
     {/if}
 
     {#if editGallery}
@@ -480,7 +509,7 @@
     {/if}
 </div>
 
-{/if}
+
 
 <style>
     .edit-news {

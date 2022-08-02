@@ -10,12 +10,38 @@
 
     const dispatch = createEventDispatcher();
 
-    export let block = {}
+    export let block
 
     export let updateBlock = false
+    export let creatingBlock = false
+
     let isEdited = false
-    const blockBup = {...block}
-    let {id,title, text, image, image_width, image_height, image_position} = block
+    let showSavingWarning = false
+    $: savingCreatingButtonText = creatingBlock ? 'Enregister' : 'Enregister la modif'
+
+
+    let blockBup = {}
+    let id = ''
+    let title = ''
+    let text = ''
+    let image = ''
+    let image_width = ''
+    let image_height = ''
+    let image_position = ''
+
+    if (block) {
+        blockBup = {...block}
+        id = block.id
+        title = block.title
+        text = block.text
+        image = block.image
+        image_width = block.image_width
+        image_height = block.image_height
+        image_position = block.image_position
+    } 
+
+    
+    // let {id,title, text, image, image_width, image_height, image_position} = block
 
     const croppingAspectRatio = 1
     let dnBanner = true
@@ -50,14 +76,14 @@
     // }
     $: console.log('block', {id}, {title}, {text})
 
-    const renewIllustrationId = (e) => {
-        image = e.detail.public_id
-        console.log('renewIllustrationId', {image})
-    }
+    // const renewIllustrationId = (e) => {
+    //     image = e.detail.public_id
+    //     console.log('renewIllustrationId', {image})
+    // }
 
-    const getNewIllustrationId = (e) => {
+    const getIllustrationId = (e) => {
         image = e.detail.public_id
-        console.log('getNewIllustrationId', {image})
+        console.log('getIllustrationId', {image})
     }
     //TODO: fusionner les 2 fonctions ci dessus ?
     //TODO: ajouter le choix de la position de l'image dans le block
@@ -74,7 +100,8 @@
     }
 
     const saveBlock = () => {
-        console.log(('saveBlock'), {id})
+        if (block) {
+        console.log(('saveBlock updating block'), {id})
         const blockWithChanges = {
             id,
         }
@@ -114,16 +141,56 @@
 
         dispatch('update-block', {blockWithChanges})
         isEdited = false
+        }
+
+        if (!block) {
+            console.log(('saveBlock creating block'))
+            if (title === '' && text === '' && image === '') {
+                showSavingWarning = true
+            }
+            let blockCreated = {}
+            if (title !== '') {
+                blockCreated.title = title
+            }
+            if (text !== '') {
+                blockCreated.text = text
+            }
+
+            if (image !== '') {
+                blockCreated.image = image
+            }
+
+            if (text !== '' && image !== '' && image_position !== '') {
+                blockCreated.image_position = image_position
+            }
+            blockCreated = {
+                id: Date.now(),
+                ...blockCreated
+            }
+            console.log(('saveBlock creating block', {blockCreated}))
+            dispatch('save-new-block', {blockCreated})
+            isEdited = false
+        }
     }
 
     const cancelModifBlock = () => {
+        if (block) {
         title = blockBup.title
         text = blockBup.text
         image = blockBup.image
         image_width = blockBup.image_width
         image_height = blockBup.image_height
         image_position = blockBup.image_position
-        console.log('cancelModifBlock', {block})
+        console.log('cancelModifBlock updating', {block})
+        }
+        if (!block) {
+            block = {}
+            title = ''
+            text = ''
+            image = '' //TODO: delete image
+            image_position = ''
+            console.log('cancelModifBlock creating', {block})
+        }
         isEdited = false
     }
 </script>
@@ -131,7 +198,9 @@
 {#if updateBlock}
     {#if isEdited}
         <div class="has-background-warning-light block">
-            <p>id: {id}</p>
+            {#if id}
+                <p>id: {id}</p>
+            {/if}
             <TextInput
                 id="subtitle"
                 label="Titre du block"
@@ -163,7 +232,7 @@
                         dn={dnBanner}
                         imgResize={f.imgSquareW}
                         w=200
-                        on:renew-illustration-id={renewIllustrationId}
+                        on:renew-illustration-id={getIllustrationId}
                         on:delete-img={deleteIllustration}
                         />
                     {:else}
@@ -173,36 +242,39 @@
                         {croppingAspectRatio}
                         uploadPreset='Actibenne_illustrations' 
                         dispatchTitle='get-new-illustration-id'
-                        on:get-new-illustration-id={getNewIllustrationId}
+                        on:get-new-illustration-id={getIllustrationId}
                         />
                     {/if}
                 </div>
                 <div class="column">
-                    <span class="label">Position de l'image</span>
-                    {image_position}
+                    <span class="label">Position de l'image par rapport au texte</span>
                     <Select 
                     {selectItems} 
                     selected={image_position}
                     on:get-selected={getSelectedImgPosition}
                     />
-                    <Notification 
-                    mt-3
-                    is-info
-                    is-light
-                    text='par défaut : image à gauche du texte' 
-                    />
+                    {#if image_position === ''}
+                        <Notification 
+                        mt-3
+                        is-info
+                        is-light
+                        text='par défaut : image à gauche du texte' 
+                        />
+                    {/if}
                     
                 </div>
             </div>
+
             <div class="buttons">
-                <Button
-                is-outlined
-                is-primary
-                enabled={true}
-                fct={saveBlock}
-                >
-                    Enregistrer la modif
-                </Button>
+                    <Button
+                    is-outlined
+                    is-primary
+                    enabled={true}
+                    fct={saveBlock}
+                    >
+                        {savingCreatingButtonText}
+                    </Button>
+
                 <Button
                 is-outlined
                 is-info
@@ -222,13 +294,17 @@
         </div>
         <div class="actions ml-3">
             <span 
-            class="has-text-info"
             on:click={() => {
                 isEdited = true
                 console.log('open block', {block})
             }}
             >
-                <i class="fas fa-pen-square"></i>
+                {#if creatingBlock}
+                    <i class="fas fa-plus-circle has-text-primary"></i>
+                {:else}
+                    <i class="fas fa-pen-square has-text-info"></i>
+                {/if}
+                
             </span>
         </div>
     </div>
