@@ -315,6 +315,8 @@
         }
         blocks[idx] = blockUpdated
         console.log('updateBlock EditArticle 2', {blocks}, idx, id)
+        parts.set([])
+        parts.set(blocks)
         blockIsUpdated = true
         saveItem()
     }
