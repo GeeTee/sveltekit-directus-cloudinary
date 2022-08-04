@@ -17,6 +17,7 @@
 
     let isEdited = false
     let showSavingWarning = false
+    let isLoadingDeleteButton = false
     $: savingCreatingButtonText = creatingBlock ? 'Enregister' : 'Enregister la modif'
 
 
@@ -105,38 +106,83 @@
         const blockWithChanges = {
             id,
         }
-        if (title !== blockBup.title) {
-            blockWithChanges.title = title
+        //TODO:  MANAGING TITLE
+        if (blockBup.title) {
+            if (title) {
+                if (blockBup.title !== title) {
+                    blockWithChanges.title = title
+                }
+                if (blockBup.title === title) {
+                    blockWithChanges.title = blockBup.title
+                }
+            }
         }
-        if (text !== blockBup.text) {
-            blockWithChanges.text = text
+        if (!blockBup.title) {
+            if (title) {
+                blockWithChanges.title = title
+            }
         }
-        console.log('saveBlock point img', {image}, blockBup.image)
-        if (image === '' && blockBup.image !== '') { 
+        //TODO: MANAGING TEXT
+        if (blockBup.text) {
+            if (text) {
+                if (blockBup.text !== text) {
+                    blockWithChanges.text = text
+                }
+                if (blockBup.text === text) {
+                    blockWithChanges.text = blockBup.text
+                }
+            }
+        }
+        if (!blockBup.text) {
+            if (text) {
+                blockWithChanges.text = text
+            }
+        }
+
+        //TODO: MANANING ILLUSTRATION IMAGE
+
+        console.log('saveBlock point img', {image}, 'blockBup.image :', blockBup.image)
+
+        if (typeof blockBup.image === 'string' && blockBup.image !== '') {
+            console.log('ON A BUP IMG ET ON VIDE', blockBup.image)
+
+            if (image === '') { 
             console.log('on a enlevé l image et on confirme donc la supprimme', {image})
             f.deleteOneImg(f.slashToUnderscore(blockBup.image))
-            blockWithChanges.image = image
-        }
-        if ( image !== '' && image !== blockBup.image) { 
-            console.log('on a changé l image et on confirme donc détruite le bup',{image} )
+            // pas besoin de delete image, blockWithChanges est vide à la base !
+            }
+
+            if ( image !== '' && image !== blockBup.image) { 
+            console.log('on a changé l image et on confirme. donc détruire le bup',blockBup.image)
             f.deleteOneImg(f.slashToUnderscore(blockBup.image))
             blockWithChanges.image = image
-            
+            blockWithChanges.image_width = image_width
+            blockWithChanges.image_height = image_height
+            blockWithChanges.image_position = image_position
+            }
+
+            if ( image !== '' && image === blockBup.image) { 
+            console.log('on a changé l image et on confirme. donc détruire le bup',blockBup.image)
+            f.deleteOneImg(f.slashToUnderscore(blockBup.image))
+            blockWithChanges.image = blockBup.image
+            blockWithChanges.image_width = blockBup.image_width
+            blockWithChanges.image_height = blockBup.image_height
+            blockWithChanges.image_position = blockBup.image_position
+            }
         }
-        if ( image !== '' && blockBup.image === '') { 
+
+        if (!blockBup.image) {
+            console.log('PAS DE BUP IMG')
+            if ( image !== '') { 
             console.log('on ajoute une image, il n y en avait pas',{image} )
             blockWithChanges.image = image
-            
-        }
-        if (image_width !== blockBup.image_width) {
             blockWithChanges.image_width = image_width
-        }
-        if (image_height !== blockBup.image_height) {
             blockWithChanges.image_height = image_height
+            blockWithChanges.image_position = image_position            
+            }
+
         }
-        if (image_position !== blockBup.image_position) {
-            blockWithChanges.image_position = image_position
-        }
+
         console.log(('saveBlock'), {blockWithChanges})
 
         dispatch('update-block', {blockWithChanges})
@@ -193,11 +239,21 @@
         }
         isEdited = false
     }
+
+    const deleteBlock = async () => {
+        console.log('deleteBlock', {id})
+        isLoadingDeleteButton = true
+        if (typeof blockBup.image === 'string' && blockBup.image !== '') {
+            await f.deleteOneImg(f.slashToUnderscore(blockBup.image))
+        }
+        dispatch('deleting-block', {id})
+        isEdited = false
+    }
 </script>
 
 {#if updateBlock}
     {#if isEdited}
-        <div class="has-background-warning-light block">
+        <div class="has-background-grey-light block p-2">
             {#if id}
                 <p>id: {id}</p>
             {/if}
@@ -213,7 +269,7 @@
             <TextInput
                 id="redaction"
                 label="Rédaction"
-                validityMessage="Entrez votre Titre"
+                validityMessage="Entrez votre rédactionnel"
                 controlType="textarea"
                 bind:value={text}
                 />
@@ -225,6 +281,7 @@
                         cld_public_id={image} 
                         {croppingAspectRatio} 
                         buttonText='Remplacer'
+                        isOutlined={true}
                         imageInstalled={true} 
                         showDeleteImg={true}
                         uploadPreset='Actibenne_illustrations' 
@@ -239,6 +296,7 @@
                         <span class="label">Image illustrant ce block</span>
                         <ImagUpload 
                         buttonText='Choisir' 
+                        isOutlined={true}
                         {croppingAspectRatio}
                         uploadPreset='Actibenne_illustrations' 
                         dispatchTitle='get-new-illustration-id'
@@ -253,7 +311,7 @@
                     selected={image_position}
                     on:get-selected={getSelectedImgPosition}
                     />
-                    {#if image_position === ''}
+                    {#if image_position === '' || !image_position}
                         <Notification 
                         mt-3
                         is-info
@@ -266,22 +324,29 @@
             </div>
 
             <div class="buttons">
-                    <Button
-                    is-outlined
-                    is-primary
-                    enabled={true}
-                    fct={saveBlock}
-                    >
-                        {savingCreatingButtonText}
-                    </Button>
+                <Button
+                is-primary
+                enabled={true}
+                fct={saveBlock}
+                >
+                    {savingCreatingButtonText}
+                </Button>
 
                 <Button
-                is-outlined
                 is-info
                 enabled={true}
                 fct={cancelModifBlock}
                 >
-                    Fermer / Abandonner
+                    Fermer
+                </Button>
+
+                <Button
+                is-danger
+                isLoading={isLoadingDeleteButton}
+                enabled={true}
+                fct={deleteBlock}
+                >
+                    Détruire
                 </Button>
             </div>
         </div>
@@ -323,6 +388,7 @@
     .actions {
         display: flex;
         flex-direction: column;
+        font-size: 2rem;
     }
     i:hover {
         cursor: pointer;

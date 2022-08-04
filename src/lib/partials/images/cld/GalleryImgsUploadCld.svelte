@@ -13,6 +13,7 @@
     export let showAdvancedOptions = true;
     export let dispatchTitle = 'get-gallery-info';
     export let dn = true
+    export let isOutlined = false
 
     export let thumbGallery = []
 
@@ -159,6 +160,7 @@
     class:is-primary={thumbGallery.length === 0} 
     class:is-info={thumbGallery.length > 0}
     class="button" 
+    class:is-outlined={isOutlined}
     on:click={handleUploadImage}
     >
     <span class="icon is-small"><i class="fas fa-camera-retro"></i></span>
@@ -168,6 +170,7 @@
     {#if thumbGallery.length > 0}
         <button 
         class="button is-danger" 
+        class:is-outlined={isOutlined}
         on:click={confirmEmptyGallery}
         >
         <span class="icon is-small"><i class="fas fa-camera-retro"></i></span>

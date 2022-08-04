@@ -1,6 +1,7 @@
 <script>
 	export let enabled = false
 	export let fct;
+	export let isLoading = false
 	
 	let classBase = ["button"]
 	// console.log($$restProps)
@@ -17,6 +18,7 @@
 {#if fct}
 <button 
 class={classL} 
+class:is-loading={isLoading}
 disabled={!enabled}
 on:click={fct}
 >

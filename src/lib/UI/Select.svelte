@@ -10,6 +10,9 @@
         ...selectItems
     ]
     export let selected = ''
+    if (selected === null) {
+        selected = ''
+    }
     $: console.log('select', {selected})
 </script>
 <div class="select">

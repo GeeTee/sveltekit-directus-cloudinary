@@ -27,6 +27,7 @@
     export let dispatchTitle = 'get-avatar-public-id'
     export let dn = true
     export let text = 'Enregistrer pour garder vos modifications'
+    export let isOutlined = false
 
     let isLoading = false
 
@@ -140,6 +141,7 @@
     class:is-loading={isLoading} 
     class:is-primary={!imageInstalled} 
     class:is-warning={imageInstalled}
+    class:is-outlined={isOutlined}
     class="button" 
     on:click={handleUploadImage}
     >
@@ -149,6 +151,7 @@
     {#if showDeleteImg}
     <button 
     class="button is-danger" 
+    class:is-outlined={isOutlined}
     on:click={() => dispatch('delete-img')}
     >
     <span class="icon is-small"><i class="fas fa-camera-retro"></i></span>

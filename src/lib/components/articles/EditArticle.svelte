@@ -15,6 +15,7 @@
     import GallUpload from '$lib/partials/images/cld/GalleryImgsUploadCld.svelte'
     import ThumbsGallery from '../../partials/images/ThumbsGallery.svelte'
     import Button from '../../UI/Button.svelte'
+    import Indication from '../../UI/LabelIndication.svelte'
 
     export let itemToEdit = undefined
 
@@ -26,6 +27,7 @@
     let id = ''
     let title = ''
     let slug = '' //TODO: => ?????? 
+    let main_text = ''
     let cld_public_id = ''
     let blocks = []
     let gallery_photos = []
@@ -38,8 +40,6 @@
         lower: true
     }
 
-    $: ll = blocks.length
-
     // CONFIRMATION ACTION ENREGISTER //TODO:
     let haveSaved = false
     let showWarningLeavingPage = false
@@ -47,17 +47,22 @@
     let dnBanner = true
     let dnGallery = true
 
-    // const titleValid = true
+    // VALIDATIONS DE CHAMPS
     const redactionValid = true
     const croppingAspectRatio = 1.385
+    let mainTextValid = true
 
     $: formValid = titleValid && redactionValid
 
     let editTitle = false
     let editBanner = false
+    let editMainText = false
     let editGallery = false
     let galleryAction = ''
     let blockIsUpdated = false
+
+    // LOADING STATES BUTTONS 
+    let isLoadingSaveMainTextButton = false
 
     if (itemToEdit) {
         console.log('EditNews', {itemToEdit})
@@ -66,8 +71,11 @@
         id = itemToEdit.id
         title = itemToEdit.title
         slug = itemToEdit.slug
-        blocks = itemToEdit.blocks
-        parts.set(itemToEdit.blocks)
+        main_text = itemToEdit.main_text
+        if (itemToEdit.blocks) {
+            blocks = itemToEdit.blocks
+            parts.set(itemToEdit.blocks)        
+        }
         cld_public_id = itemToEdit.cld_public_id // BAnner
         if (itemToEdit.gallery_photos !== null) {
             gallery_photos = itemToEdit.gallery_photos
@@ -81,7 +89,7 @@
         
     }
 
-    $: console.log('EditArticle', {blocks})
+    // $: console.log('EditArticle', {blocks})
 
     const saveItem = async () => {
         if (itemToEdit) {
@@ -106,9 +114,13 @@
                 updatedItem.slug = slugify(title, options)
             }
 
+            if (main_text !== itemBup.main_text) {
+                updatedItem.main_text = main_text
+            }
+
             if (blockIsUpdated) {
                 updatedItem.blocks = blocks
-                console.log('saveItem BBlocks', 'blocks.l :', blocks.length, '<br />updatedItem.blocks.l :', updatedItem.blocks.length, '<br />itemToEdit.blocks.l :',  itemToEdit.blocks.length)
+                console.log('saveItem BBlocks', 'blocks.l :', blocks?.length, '<br />updatedItem.blocks.l :', updatedItem.blocks?.length, '<br />itemToEdit.blocks.l :',  itemToEdit.blocks?.length)
                 console.log('saveItem blocks', {blocks})
             }
 
@@ -219,6 +231,23 @@
         editTitle = false
     }
 
+    //MAIN TEXT
+    const editingMainText = () => {
+        console.log('editingMainText')
+        editMainText = true
+    }
+    const saveNewMainText = async () => {
+        console.log('saveNewMainText')
+        isLoadingSaveMainTextButton = true
+        await saveItem()
+        editMainText = false
+    }
+    const cancelModifMainText = () => {
+        console.log('cancelModifMainText')
+        main_text = itemBup.main_text
+        editMainText = false
+    }
+
     // GALLERY IMGS
     let thumbGallCompo = ThumbsGallery
     let thumbGallProps = {
@@ -309,11 +338,89 @@
         console.log('updateBlock EditArticle 1', {blockWithChanges})
         const {id} = blockWithChanges
         let idx = blocks.findIndex(item => item.id === id)
-        const blockUpdated = {
-            ...blocks[idx],
-            ...blockWithChanges
+
+        // const keys = ['title', 'text']
+        // const l = keys.length
+
+        // for (let i = 0; i < l; i++) {
+        //     if (blocks[idx][keys[i]]) { // ON A UN TITLE
+        //     if (blockWithChanges[keys[i]]) { // ON A UN NOUVEAU TITLE 
+        //         if (blocks[idx][keys[i]] !== blockWithChanges[keys[i]]) { // TITLES DIFFÉRENTS
+        //             blocks[idx][keys[i]] = blockWithChanges[keys[i]]
+        //         }
+        //     }
+        //         // PAS DE NOUVEAU TITLE
+        //         delete blocks[idx][keys[i]]
+        //     }
+
+        //     if (!blocks[idx][keys[i]]) { // PAS DE TITLE ON EN AJOUTE UN
+        //         if (blockWithChanges[keys[i]]) {
+        //             blocks[idx][keys[i]] = blockWithChanges.title
+        //         }        
+        //     }
+        // }
+
+        // MANAGING TITLE
+        if (blocks[idx].title) { // ON A UN TITLE
+            if (blockWithChanges.title) { // ON A UN NOUVEAU TITLE 
+                if (blocks[idx].title !== blockWithChanges.title) { // TITLES DIFFÉRENTS
+                    blocks[idx].title = blockWithChanges.title
+                }
+            }
+            // PAS DE NOUVEAU TITLE
+            delete blocks[idx].title
         }
-        blocks[idx] = blockUpdated
+
+        if (!blocks[idx].title) { // PAS DE TITLE ON EN AJOUTE UN
+            if (blockWithChanges.title) {
+                blocks[idx].title = blockWithChanges.title
+            }        
+        }
+
+        // MANAGING TEXT
+        if (blocks[idx].text) { // ON A UN TEXT
+            if (blockWithChanges.text) { // ON A UN NOUVEAU TEXT 
+                if (blocks[idx].text !== blockWithChanges.text) { // TEXTS DIFFÉRENTS
+                    blocks[idx].text = blockWithChanges.text
+                }
+            }
+            // PAS DE NOUVEAU TEXT
+            delete blocks[idx].text
+        }
+
+        if (!blocks[idx].text) { // PAS DE TEXT ON EN AJOUTE UN
+            if (blockWithChanges.text) {
+                blocks[idx].text = blockWithChanges.text
+            }        
+        }
+
+        // MANAGING IMAGE
+        if (blocks[idx].image) { // ON A UN IMAGE
+            if (blockWithChanges.image) { // ON A UN NOUVEAU IMAGE 
+                if (blocks[idx].image !== blockWithChanges.image) { // IMAGES DIFFÉRENTS
+                    blocks[idx].image = blockWithChanges.image
+                    blocks[idx].image_width = blockWithChanges.image_width
+                    blocks[idx].image_height = blockWithChanges.image_height
+                    blocks[idx].image_position = blockWithChanges.image_position
+                }
+            }
+            // PAS DE NOUVEAU IMAGE
+            delete blocks[idx].image
+            delete blocks[idx].image_width
+            delete blocks[idx].image_height
+            delete blocks[idx].image_position
+        }
+
+        if (!blocks[idx].image) { // PAS DE IMAGE ON EN AJOUTE UN
+            if (blockWithChanges.image) {
+                blocks[idx].image = blockWithChanges.image
+                blocks[idx].image_width = blockWithChanges.image_width
+                blocks[idx].image_height = blockWithChanges.image_height
+                blocks[idx].image_position = blockWithChanges.image_position
+            }        
+        }
+
+        // blocks[idx] = blockUpdated
         console.log('updateBlock EditArticle 2', {blocks}, idx, id)
         parts.set([])
         parts.set(blocks)
@@ -331,9 +438,19 @@
         saveItem()
         
     }
+    const deletingBlock = (e) => {
+        const {id} = e.detail
+        console.log('deletingBlock', {id})
+        blocks = blocks.filter(item => item.id !== id)
+        parts.set([])
+        parts.set(blocks)
+        blockIsUpdated = true
+        saveItem()
+    }
 
     onDestroy(
         () => {
+            parts.set([])
             if (!haveSaved) {
                 showWarningLeavingPage = true
                 console.log('ONDESTROY na pas sauvegardé', {showWarningLeavingPage})
@@ -355,13 +472,60 @@
 </svelte:head>
 
 <div class="edit-news has-background-white-ter p-3 block">
+
+    {#if editTitle}
+    <div class="has-background-grey-light p-2">
+        <TextInput
+            id="title"
+            label="Titre"
+            type="text"
+            valid={titleValid}
+            validityMessage="Entrez votre Titre"
+            controlType="input"
+            value={title}
+            on:input={event => (title = event.target.value)} />
+        {#if title === ''}
+             <span class="has-text-danger">Vous ne pouvez pas effacer le titre de l'article => abandonner la modif</span>
+        {/if}
+        <div class="buttons">
+            <Button
+            is-primary
+            enabled={titleValid}
+            fct={saveNewTitle}
+            >
+                Enregistrer la modif
+            </Button>
+            <Button
+            is-info
+            enabled={true}
+            fct={cancelModifTitle}
+            >
+                Abandonner la modif
+            </Button>
+        </div>
+    </div>
+    {/if}
+    {#if !editTitle}
+    <Indication 
+    has-background-dark
+    is-size-6
+    has-text-success
+    indication="Titre de l'article" 
+    />
+        <Html 
+        content={`<span class="title">${title}</span>`} 
+        on:edit-elt={editingTitle}
+        />
+    {/if}
+
     {#if editBanner}
-    <div class="banner-choice">
+    <div class="has-background-grey-light p-2">
         <p class="label">Bannière</p>
         {#if cld_public_id}
             <ImagUpload 
             {cld_public_id} 
             {croppingAspectRatio} 
+            isOutlined={true}
             text={`Pensez à enregistrer le choix de votre photo. <br />Bouton jaune ci dessous :  "Enregistrer la modif"`}
             imageInstalled={true}
             uploadPreset='Actibenne_banners' 
@@ -373,6 +537,7 @@
             <ImagUpload 
             buttonText='Choisir' 
             {croppingAspectRatio} 
+            isOutlined={true}
             text={`Pensez à enregistrer le choix de votre photo. <br />Bouton jaune ci dessous :  "Enregistrer la modif"`}
             uploadPreset='Actibenne_banners' 
             dispatchTitle='get-new-banner-id'
@@ -381,10 +546,12 @@
         {/if}
             <Button
             is-danger
+            is-outlined
+            block
             enabled={deleteBannerValid}
             fct={deletingBanner}
             >
-                Enlever la bannière
+                Détruire
             </Button>
         <div class="buttons">
             <Button
@@ -405,6 +572,12 @@
     </div>
     {/if}
     {#if !editBanner}
+    <Indication 
+    has-background-dark
+    is-size-6
+    has-text-success
+    indication="Bannière" 
+    />
          <Html 
         content={`<div class="edit-banner block">
                     <img src=${f.bannerResizeW(500, cld_public_id)} alt="">
@@ -412,68 +585,88 @@
         on:edit-elt={editingBanner}
         />
     {/if}
-    {#if editTitle}
+
+    {#if !editMainText}
+    <Indication 
+    has-background-dark
+    is-size-6
+    has-text-success
+    indication="Rédactionnel principal et indispensable" 
+    />
+        <Html 
+        content={`<div>${main_text}</div>`} 
+        on:edit-elt={editingMainText}
+        />
+    {/if}
+
+    {#if editMainText}
+    <div class="has-background-grey-light p-2">
         <TextInput
-            id="title"
-            label="Titre"
-            type="text"
-            valid={titleValid}
-            validityMessage="Entrez votre Titre"
-            controlType="input"
-            value={title}
-            on:input={event => (title = event.target.value)} />
-        {#if title === ''}
-             <span class="has-text-danger">Vous ne pouvez pas effacer le titre de l'article => abandonner la modif</span>
+            id="main-redaction"
+            label="Rédaction principale"
+            validityMessage="Entrez votre rédactionnel"
+            controlType="textarea"
+            bind:value={main_text}
+            />
+        {#if main_text === ''}
+             <span class="has-text-danger">Vous ne pouvez pas effacer le rédactionnel principal de l'article => abandonner la modif</span>
         {/if}
         <div class="buttons">
             <Button
-            is-outlined
             is-primary
-            enabled={titleValid}
-            fct={saveNewTitle}
+            isLoading={isLoadingSaveMainTextButton}
+            enabled={mainTextValid}
+            fct={saveNewMainText}
             >
                 Enregistrer la modif
             </Button>
             <Button
-            is-outlined
             is-info
             enabled={true}
-            fct={cancelModifTitle}
+            fct={cancelModifMainText}
             >
                 Abandonner la modif
             </Button>
         </div>
+    </div>
     {/if}
-    {#if !editTitle}
-        <Html 
-        content={`<span class="title">${title}</span>`} 
-        on:edit-elt={editingTitle}
-        />
-    {/if}
-
 
     {#if $parts.length > 0}
-    {$parts.length}
+    {$parts.length} <br>
+        <Indication 
+        has-background-dark
+        is-size-6
+        has-text-success
+        indication="Les blocks de rédactions en place" 
+        />
         {#each $parts as block}
                 <Block 
                 {block} 
                 updateBlock={true}
                 on:update-block={updateBlock}
+                on:deleting-block={deletingBlock}
                 />
         {/each}
-        <div>
-            <span class="title">Ajouter un block</span>
-            <Block
-            updateBlock={true} 
-            creatingBlock={true}
-            on:save-new-block={saveNewBlock}
-            />
-        </div>
     {/if}
+    <div>
+        <Indication 
+        has-background-dark
+        is-size-6
+        has-text-success
+        indication="Ajouter un / des block(s)" 
+        />
+        <Block
+        updateBlock={true} 
+        creatingBlock={true}
+        on:save-new-block={saveNewBlock}
+        />
+    </div>
 
     {#if editGallery}
+    <div class="has-background-grey-light p-2">
     <GallUpload 
     {thumbGallery}
+    isOutlined={true}
     showAdvancedOptions={false}
     uploadPreset='Actibenne_postsGalleries'
     dn={dnGallery}
@@ -484,14 +677,12 @@
     <div class="buttons">
         <Button
         is-primary
-        is-outlined
         enabled={true}
         fct={saveNewGallery}
         >
             Enregistrer la modif
         </Button>
         <Button
-        is-outlined
         is-info
         enabled={true}
         fct={cancelModifGallery}
@@ -499,15 +690,21 @@
             Abandonner la modif
         </Button>
     </div>
+    </div>
     {/if}
     {#if !editGallery}
+        <Indication 
+        has-background-dark
+        is-size-6
+        has-text-success
+        indication="Galerie images" 
+        />
         <Html 
         type='component'
         component={thumbGallCompo}
         props={thumbGallProps}
         on:edit-elt={editingGallery}
         />
-
     {/if}
 </div>
 

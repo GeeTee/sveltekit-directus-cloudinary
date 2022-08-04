@@ -15,6 +15,7 @@ const getAllArticles = async () => {
                         title
                         slug 
                         cld_public_id
+                        main_text
                         blocks
                         gallery_photos
                     }
